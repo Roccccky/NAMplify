@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- dark rounded square -->
+  <rect x="90" y="90" width="844" height="844" rx="190" fill="#222222"/>
+
+  <!-- signal line -->
+  <rect x="140" y="496" width="744" height="32" rx="16" fill="#7a7a7a"/>
+
+  <!-- blue pedal (behind, left) -->
+  <rect x="205" y="360" width="240" height="304" rx="36" fill="#4A90D9"/>
+  <g transform="translate(285,438)">
+    <circle r="30" fill="none" stroke="#ECECEC" stroke-width="11"/>
+    <line x1="0" y1="-13" x2="0" y2="-30" stroke="#ECECEC" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <circle cx="285" cy="612" r="15" fill="#ECECEC"/>
+
+  <!-- teal pedal (behind, right) -->
+  <rect x="579" y="360" width="240" height="304" rx="36" fill="#45BFA6"/>
+  <g transform="translate(739,438)">
+    <circle r="30" fill="none" stroke="#ECECEC" stroke-width="11"/>
+    <line x1="0" y1="-13" x2="0" y2="-30" stroke="#ECECEC" stroke-width="11" stroke-linecap="round"/>
+  </g>
+  <circle cx="739" cy="612" r="15" fill="#ECECEC"/>
+
+  <!-- big red pedal (front) -->
+  <rect x="330" y="176" width="364" height="672" rx="52" fill="#E8523F"/>
+
+  <g stroke="#ECECEC" stroke-width="14" stroke-linecap="round" fill="none">
+    <g transform="translate(407,290) rotate(-40)">
+      <circle r="36"/>
+      <line x1="0" y1="-16" x2="0" y2="-36"/>
+    </g>
+    <g transform="translate(512,290)">
+      <circle r="36"/>
+      <line x1="0" y1="-16" x2="0" y2="-36"/>
+    </g>
+    <g transform="translate(617,290) rotate(40)">
+      <circle r="36"/>
+      <line x1="0" y1="-16" x2="0" y2="-36"/>
+    </g>
+  </g>
+
+  <!-- NAM / PLIFY -->
+  <text x="512" y="540" font-family="Courier New, monospace" font-weight="bold" font-size="150" fill="#ECECEC" text-anchor="middle" letter-spacing="4">NAM</text>
+  <text x="512" y="632" font-family="Courier New, monospace" font-weight="bold" font-size="84" fill="#1c1c1c" text-anchor="middle" letter-spacing="3">PLIFY</text>
+
+  <!-- footswitch ring -->
+  <circle cx="512" cy="748" r="42" fill="none" stroke="#ECECEC" stroke-width="15"/>
+</svg>

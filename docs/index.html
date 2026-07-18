@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAMplify — Pedalboard. NAM captures, TONE3000 on the fly.</title>
+<meta name="description" content="The simplest way to jam with NAM captures. TONE3000 integrated — every sound one click away. Free for macOS.">
+<meta property="og:title" content="NAMplify — a pedalboard for your Mac">
+<meta property="og:description" content="The simplest way to jam with NAM captures. TONE3000 integrated — every sound one click away.">
+<meta property="og:image" content="assets/hero-board.png">
+<link rel="icon" type="image/svg+xml" href="appicon.svg">
+<style>
+  :root {
+    --bg: #0c0c0e;
+    --panel: #16161a;
+    --panel-hi: #1e1e24;
+    --stroke: #2a2a32;
+    --text: #f2f0ec;
+    --dim: #8a8a93;
+    --accent: #e5533c;
+    --accent-soft: rgba(229, 83, 60, .12);
+    --green: #4caf7d;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+  .wide { max-width: 1140px; }
+
+  /* Hero */
+  header {
+    padding: 96px 0 72px;
+    text-align: center;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% -10%, var(--accent-soft), transparent),
+      var(--bg);
+  }
+  .wordmark { margin-bottom: 26px; }
+  .wordmark svg {
+    width: min(300px, 70vw);
+    height: auto;
+    fill: #ececec;
+    filter: drop-shadow(0 6px 24px rgba(0, 0, 0, .4));
+  }
+  .brand {
+    letter-spacing: .35em;
+    font-size: 12px;
+    color: var(--dim);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-size: clamp(26px, 4.2vw, 40px);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+  }
+  h1 .hl { color: var(--accent); }
+  .sub {
+    margin: 20px auto 0;
+    max-width: 560px;
+    color: var(--dim);
+    font-size: 18px;
+  }
+  .cta-row { margin-top: 36px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    text-decoration: none;
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 8px 28px rgba(229, 83, 60, .35);
+  }
+  .btn-ghost {
+    border: 1px solid var(--stroke);
+    color: var(--text);
+    background: var(--panel);
+  }
+  .hero-note { margin-top: 14px; font-size: 13px; color: var(--dim); }
+
+  /* Screenshots */
+  .shot {
+    width: 100%;
+    height: auto;
+    display: block;
+    border: 1px solid var(--stroke);
+    border-radius: 14px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .5);
+  }
+  .hero-shot {
+    margin: 56px auto 0;
+    max-width: 1040px;
+    padding: 0 24px;
+  }
+  /* Hero-PNG bringt seinen eigenen Schatten mit — kein Rahmen drumherum */
+  .hero-shot .shot { border: 0; border-radius: 0; box-shadow: none; }
+
+
+  /* Sections */
+  section { padding: 72px 0; border-top: 1px solid var(--stroke); }
+  h2 {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    margin-bottom: 28px;
+  }
+  h2 .tag { color: var(--accent); }
+  .lead {
+    color: var(--dim);
+    font-size: 16px;
+    max-width: 720px;
+    margin: -12px 0 14px;
+  }
+  .lead strong { color: var(--text); }
+  .lead-note {
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: .85;
+    margin: 0 0 32px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .card h3 { font-size: 16px; margin-bottom: 8px; }
+  .card p { color: var(--dim); font-size: 14px; }
+
+  /* Line icons (UI style — stroke wie die App-Symbole, keine Emojis) */
+  .lic {
+    width: 28px;
+    height: 28px;
+    stroke: var(--accent);
+    stroke-width: 1.8;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .card .lic { display: block; margin-bottom: 14px; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    justify-content: center;
+  }
+  .btn .lic {
+    width: 17px;
+    height: 17px;
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+
+  /* Gallery: square shots — one tidy row on desktop, 2×2 on tablet */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 22px;
+  }
+  .gallery .shot { aspect-ratio: 1 / 1; object-fit: cover; }
+  figure { margin: 0; }
+  figure figcaption {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--dim);
+    text-align: center;
+  }
+  figure figcaption strong { color: var(--text); }
+
+  /* NAM explainer */
+  .nam-box {
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-left: 3px solid var(--accent);
+    border-radius: 14px;
+    padding: 28px;
+    color: var(--dim);
+    font-size: 15px;
+  }
+  .nam-box strong { color: var(--text); }
+
+  /* Steps */
+  ol.steps { list-style: none; counter-reset: n; }
+  ol.steps li {
+    counter-increment: n;
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--stroke);
+    color: var(--dim);
+    font-size: 15px;
+  }
+  ol.steps li:last-child { border-bottom: 0; }
+  ol.steps li::before {
+    content: counter(n);
+    flex: 0 0 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--panel-hi);
+    border: 1px solid var(--stroke);
+    color: var(--accent);
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+  ol.steps li strong { color: var(--text); }
+  .warn {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: var(--panel);
+    border: 1px solid var(--stroke);
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--dim);
+  }
+  .warn strong { color: var(--green); }
+
+  /* Support */
+  .support { text-align: center; }
+  .support p { color: var(--dim); max-width: 520px; margin: 0 auto 22px; }
+
+  /* Footer */
+  footer { padding: 48px 0 64px; text-align: center; color: var(--dim); font-size: 13px; }
+  footer a { color: var(--text); text-decoration: none; border-bottom: 1px solid var(--stroke); }
+  footer a:hover { border-color: var(--accent); }
+  .foot-links { margin-bottom: 16px; display: flex; gap: 22px; justify-content: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="wordmark" role="img" aria-label="NAMPLIFY">
+      <!-- Wortmarke inline (aus Assets/Logo.imageset/logo.svg) — Farbe via CSS-fill -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 271.8 59.7">
+        <g>
+          <path d="M127,33.4v23.3c0,1.7-1.2,2.8-2.9,2.9s-3-.9-3-2.4V3.5c0-1.6,1.4-2.7,2.9-2.7h8.8c4.3.3,7.9,3.8,7.9,8.2v16.7c0,4.3-3.9,7.5-8,7.8h-5.7ZM135,24.8v-15.4c0-1.7-1.3-3.2-3-3.2h-5s0,21.7,0,21.7h5.1c1.7,0,2.9-1.5,3-3.2Z"/>
+          <g>
+            <path d="M269.7,10.5l-7.2,24.3v22.3c0,1.6-1.6,2.6-3,2.6s-3.1-1-3.1-2.6v-22.1c0,0-2.7-8.8-2.7-8.8l-6.6-22.5c-.3-.9,0-1.8.6-2.4s1.4-1,2.3-1c1.6,0,2.7.9,3.1,2.4l4.9,17.2,1.5,5.4.8-2.8,5.5-19.3c.5-1.8,1.4-3,3.5-2.9s3.2,1.6,2.7,3.4l-2.1,7.1Z"/>
+            <path d="M229.9,32.9h-9.6s0,24.2,0,24.2c0,1.6-1.5,2.6-3,2.6s-3-1-3-2.6V3.3c0-1.5,1.4-2.7,2.8-2.7h15.5c1.5,0,2.3,1.6,2.3,2.8s-.9,2.7-2.4,2.7h-12.3s0,21.2,0,21.2h9.2c1.3,0,2.2,1.4,2.4,2.4.1,1.4-.5,2.6-2,3.1Z"/>
+          </g>
+          <path d="M173.9,59.6h-15.8c-1.6,0-2.4-1.5-2.4-2.9V3.3c0-1.4,1.2-2.4,2.5-2.6s3.6.7,3.6,2.5v50.9s11.9,0,11.9,0c1.5,0,2.6,1.2,2.7,2.6s-.8,2.9-2.4,2.9Z"/>
+          <path d="M192.5,59.6c-1.4,0-3.1-.9-3.1-2.5V3.8c0-1.9,1.1-3.2,3.1-3.2s3,1.1,3,2.8v53.4c0,1.7-1.2,2.9-3,2.9Z"/>
+          <path d="M98.7,27.2l-.8,2.5-4.4,16.2c-.4,1.4-2.1,2.1-3.2,2.1s-3-.7-3.4-2.1l-2.6-9.6-2.6-9.4v30.2c0,1.6-1.6,2.7-3.1,2.6s-2.9-.9-2.9-2.5V3.5c0-1.5,1.2-2.5,2.6-2.7,1.4-.1,3.1.6,3.4,2.1l8.5,33.5,4.3-16.8,4.1-16.5c.4-1.5,1.6-2.3,3.1-2.3s2.9,1,2.9,2.6v53.6c0,1.6-1.4,2.6-2.9,2.6s-3-.8-3-2.3v-30.2Z"/>
+        </g>
+        <g>
+          <path d="M18.8,59.6c-1.3,0-2.8-.6-3.1-1.8l-3.4-11.8-6.2-21v31.9c0,1.7-1.6,2.8-3.2,2.7-1.5,0-2.9-1.1-2.9-2.7V3.5C0,2.2,1,1.2,2.2.9c2.2-.5,3.5.8,4.1,2.7l9.3,32.6V3.5c.1-1.5,1.2-2.6,2.7-2.7s3.3,1,3.3,2.9v53.1c0,1.6-1,2.8-2.7,2.9Z"/>
+          <path d="M48.5,19l-4.3,25.6-2.1,12.3c-.3,1.8-1.7,3-3.6,2.7s-2.8-1.6-2.5-3.4l3.7-20.7,2-11.5,3.6-20.9c.3-1.6,1.8-2.4,3.3-2.4s2.9.8,3.2,2.3l6.7,38.9,2.5,14.4c.3,1.8-1.1,3.2-2.9,3.3s-3-.8-3.2-2.3l-2.7-16.2-3.7-22.1Z"/>
+        </g>
+      </svg>
+    </div>
+    <div class="brand mono">NAMplify · free · macOS</div>
+    <h1>The simplest way to jam<br>with <span class="hl">NAM captures.</span></h1>
+    <p class="sub">Amps, pedals and IRs from TONE3000, sorted into stompboxes — every sound
+    one click away. No DAW, no plugin host, no routing.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/Roccccky/NAMplify/releases/latest">
+        <svg class="lic" viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M4 19.5h16"/></svg>
+        Download for Mac</a>
+      <a class="btn btn-ghost" href="https://github.com/Roccccky/NAMplify">View on GitHub</a>
+    </div>
+    <div class="hero-note">macOS 13+ · Apple Silicon &amp; Intel</div>
+  </div>
+
+  <div class="hero-shot">
+    <img class="shot" src="assets/hero-board.png"
+         alt="NAMplify app window: top bar with input, gate, stereo spread, output and tuner — below it the pedalboard with drive, a Tube Screamer pedal capture, NAM amp with Victory rig, Marshall cab/IR, EQ and tremolo as stompboxes">
+  </div>
+
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Pedalboard. <span class="tag">NAM captures, TONE3000 on the fly.</span></h2>
+    <p class="lead">NAMplify keeps it easy: amps, pedals and IRs from TONE3000 sort themselves
+    into the right stompbox — organized in banks you flip through like channels, with presets
+    right on the pedal. Your whole rig on one screen, every sound one click away.
+    <strong>No importing, no folders, no menu diving.</strong></p>
+    <p class="lead-note mono">TONE3000 integrated · sign in on the fly</p>
+    <div class="grid">
+      <div class="card">
+        <!-- Knob-Icon: Ring + Zeiger, wie die Regler in der App -->
+        <svg class="lic" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 13l-3.6-5"/><path d="M3.5 20.5h2M18.5 20.5h2"/></svg>
+        <h3>Pedalboard layout</h3>
+        <p>Amp in the middle, effects around it. Gate, comp, drive, EQ, modulation, delay and reverb — drag them into any order, right-click to remove.</p>
+      </div>
+      <div class="card">
+        <!-- Globus-Icon (TONE3000) -->
+        <svg class="lic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3.5 9.5h17M3.5 14.5h17"/></svg>
+        <h3>TONE3000 built in</h3>
+        <p>Browse, favorite and download amps, pedals, outboard gear and IRs straight from TONE3000 — sorted automatically into their own lists and pedals. Downloads land in banks you can flip through.</p>
+      </div>
+      <div class="card">
+        <!-- Stimmgabel-Icon (Tuner) -->
+        <svg class="lic" viewBox="0 0 24 24"><path d="M8 3v7a4 4 0 0 0 8 0V3"/><path d="M12 14v7"/><path d="M9 21h6"/></svg>
+        <h3>Tuner, drums &amp; presets</h3>
+        <p>One-click tuner that floats over the board (and mutes the output), a small drum machine to play along to, and presets to switch sounds in one click.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap wide">
+    <h2>See it in <span class="tag">action</span></h2>
+    <div class="gallery">
+      <figure>
+        <img class="shot" src="assets/tone3000.png"
+             alt="TONE3000 browser inside NAMplify listing amp captures, full rigs, pedals and IRs">
+        <figcaption><strong>TONE3000, built in.</strong> Browse thousands of captures and load one in a click.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="assets/tuner.png"
+             alt="Tuner overlay centered over the dimmed pedalboard: segment meter with a wandering cursor, big note readout and cents/Hz line">
+        <figcaption><strong>One-click tuner.</strong> Mutes the output, floats over the board — stomp it off and play.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="assets/add-menu.png"
+             alt="The + tile opens a menu to add comp, chorus, delay, phaser, tremolo, outboard or drums to the board">
+        <figcaption><strong>Your board, your rules.</strong> Add what you need — comp, modulation, outboard gear, drums.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="assets/settings.png"
+             alt="Settings panel with audio device, buffer size and TONE3000 account">
+        <figcaption><strong>Simple settings.</strong> Pick your interface, buffer size and TONE3000 account.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What is <span class="tag">NAM</span>?</h2>
+    <div class="nam-box">
+      <strong>NAM (Neural Amp Modeler)</strong> is a free, open-source technology for capturing real
+      guitar amps. Someone records an amp, a neural network learns how it responds, and the result is
+      a small file — a <strong>"capture"</strong> — that reproduces its sound and how it reacts to
+      picking and the volume knob. The community has shared thousands for free on
+      <strong>TONE3000</strong>: vintage combos, modern high-gain heads, rare gear. NAMplify plays
+      both A1 and A2 captures, in every size down to nano.
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Get started in <span class="tag">2 minutes</span></h2>
+    <ol class="steps">
+      <li><span><strong>Download</strong> the DMG and drag NAMplify into your Applications folder</span></li>
+      <li><span><strong>Right-click → Open</strong> on first start. If macOS shows no "Open" button: System Settings → Privacy &amp; Security → <strong>"Open Anyway"</strong> (needed once)</span></li>
+      <li><span><strong>Allow audio access</strong> and pick your audio interface in the settings</span></li>
+      <li><span><strong>Connect TONE3000</strong>, sign in for free, download an amp — and play!</span></li>
+    </ol>
+    <div class="warn">
+      <strong>Why the macOS warning?</strong> NAMplify isn't registered with Apple's paid developer
+      program — that's all the warning means. You'll need
+      an audio interface (iRig, Focusrite Scarlett or similar) so your Mac can hear your guitar.
+    </div>
+  </div>
+</section>
+
+<section class="support">
+  <div class="wrap">
+    <h2>Support the <span class="tag">project</span></h2>
+    <p>If NAMplify saves you time or you just enjoy it, you can throw a coffee my way.
+    No pressure — it stays free either way.</p>
+    <a class="btn btn-ghost" href="https://paypal.me/martinhentze/3EUR">
+      <svg class="lic" viewBox="0 0 24 24"><path d="M5 9h11v7a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9z"/><path d="M16 10h2a2.5 2.5 0 0 1 0 5h-2"/><path d="M8.5 3.5v2M12.5 3.5v2"/></svg>
+      Buy me a coffee</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-links">
+      <a href="https://github.com/Roccccky/NAMplify/releases/latest">Download</a>
+      <a href="https://github.com/Roccccky/NAMplify/issues">Report a problem</a>
+      <a href="https://paypal.me/martinhentze/3EUR">Donate</a>
+      <a href="https://www.tone3000.com">TONE3000</a>
+    </div>
+    Free to download — the source code is not public. Built on <a href="https://github.com/sdatkinson/NeuralAmpModelerCore">NeuralAmpModelerCore</a> © Steven Atkinson.
+    NAMplify is an independent app, not affiliated with the NAM project or TONE3000.
+  </div>
+</footer>
+
+</body>
+</html>
