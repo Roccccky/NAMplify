@@ -52,7 +52,7 @@ NAMplify is free. If it saves you time or you just enjoy it, you can buy me a co
 
 ## Credits
 
-NAMplify is **free to download and use**. The source code is not public.
+NAMplify is **free to download and use**.
 
 Built on:
 
