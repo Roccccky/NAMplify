@@ -64,21 +64,21 @@ reverb — plus EQ. Drag to reorder, right-click to remove, `+` to add.
 ## What's on the board
 
 **Four slots take NAM captures.** `PEDAL` for overdrives, fuzzes and boosts in front of the
-amp · `AMP` for amp captures and full rigs · `CAB` for IRs — load an amp without a cab and
-NAMplify pairs one automatically · `OUTBOARD` for preamps and studio gear after the cab
-(still experimental). Each has its own NAM engine.
+amp. `AMP` for amp captures and full rigs. `CAB` for IRs, and if you load an amp without one
+NAMplify pairs a cab itself. `OUTBOARD` for preamps and studio gear after the cab, still
+experimental. Each slot has its own NAM engine.
 
-**Around them, a normal board.** Compressor, drive (two voicings + tone), EQ, chorus, phaser,
-tremolo, delay and reverb. Drag to reorder, right-click to remove, `+` to add.
+**Around them, a normal board.** Compressor, drive (two voicings plus tone), EQ, chorus,
+phaser, tremolo, delay and reverb. Drag to reorder, right-click to remove, `+` to add.
 
-**Tools.** Stompbox tuner, drum machine, four-track looper and a recorder that writes
-WAVs.
+**Tools.** Stompbox tuner, drum machine, four-track looper, and a recorder that writes WAVs.
 
-**Top bar.** Input gain with meter, noise gate, stereo SPREAD and output level — always in reach.
+**Top bar.** Input gain with meter, noise gate, stereo SPREAD and output level, always in
+reach.
 
-**Banks and presets.** Downloads bundle into banks you flip through like channels; the dial on
-the pedal steps through the variants. Save the whole rig as a preset and export it as a
-`.nampset`.
+**Banks and presets.** Downloads bundle into banks you flip through like channels, and the
+dial on the pedal steps through the variants. Save a whole rig as a preset and export it as
+a `.nampset`.
 
 ## Get started
 
@@ -107,16 +107,16 @@ first attempt. You only need to do this once.
 ## Privacy
 
 NAMplify talks to exactly two addresses: `tone3000.com` when you browse or download captures,
-and (in the shipped 0.5.x builds) an update endpoint once a day. **No analytics, no
-telemetry, no crash reporting, no account with me, no background process.** Your playing,
-your recordings and your models never leave the Mac.
+and in the shipped 0.5.x builds an update check once a day. **No analytics, no telemetry, no
+crash reporting.** There's no account with me and nothing running in the background. Your
+playing, your recordings and your models never leave the Mac.
 
 ## Credits
 
 NAMplify models nothing itself. The captures are the work of the NAM project and of the
-people who make and share them, and they reach the app through the **TONE3000 API** — that
+people who make and share them, and they reach the app through the **TONE3000 API**, which
 is what makes a library this size usable from inside a program at all. Without those two
-there would be nothing to plug in. NAMplify is the board you play them on.
+there'd be nothing to plug in. NAMplify is just the board you play them on.
 
 It is **free to download and use**. Built on:
 
