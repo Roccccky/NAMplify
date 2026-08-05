@@ -4,7 +4,7 @@
 
 [![Latest release](https://img.shields.io/github/v/release/Roccccky/NAMplify?label=download&color=e5533c&style=for-the-badge)](https://github.com/Roccccky/NAMplify/releases/latest)
 [![macOS 13+](https://img.shields.io/badge/macOS-13%2B-2a2a32?style=for-the-badge)](https://github.com/Roccccky/NAMplify/releases/latest)
-[![Free](https://img.shields.io/badge/price-free-4caf7d?style=for-the-badge)](https://github.com/Roccccky/NAMplify/releases/latest)
+[![Free](https://img.shields.io/badge/FREE-4caf7d?style=for-the-badge)](https://github.com/Roccccky/NAMplify/releases/latest)
 
 ![NAMplify — a virtual pedalboard with a drive pedal, an amp capture, a cab IR, EQ and reverb](assets/board-hero.webp)
 
@@ -24,25 +24,30 @@ Free, for macOS. No DAW, no plugin host, no routing, no import dialog.
 <table>
 <tr>
 <td width="50%" valign="top">
-<img src="assets/slots.webp" alt="Four slots — PEDAL with a Tube Screamer, AMP with a Marshall 1959BJA capture, CAB with a UK Greenback IR, OUTBOARD empty" width="100%">
+<img src="assets/card-slots.webp" alt="Four slots — PEDAL with a Tube Screamer, AMP with a Marshall 1959BJA capture, CAB with a UK Greenback IR, OUTBOARD empty" width="100%">
 <br><b>Four slots take NAM captures.</b> Pedal, amp, cab, outboard — each with its own engine.
 </td>
 <td width="50%" valign="top">
-<img src="assets/t3k-browser.webp" alt="The TONE3000 browser inside the app, listing amp and full-rig captures with download counts" width="100%">
+<img src="assets/card-t3k-browser.webp" alt="The TONE3000 browser inside the app, listing amp and full-rig captures with download counts" width="100%">
 <br><b>TONE3000, inside the app.</b> Browse, favourite and download without leaving NAMplify.
 </td>
 </tr>
 <tr>
 <td width="50%" valign="top">
-<img src="assets/fx-tools.webp" alt="A four-track looper, a drum machine with pattern and BPM, and a recorder" width="100%">
+<img src="assets/card-fx-tools.webp" alt="A four-track looper, a drum machine with pattern and BPM, and a recorder" width="100%">
 <br><b>Looper, drums, recorder.</b> Four tracks, patterns, and WAVs written straight to disk.
 </td>
 <td width="50%" valign="top">
-<img src="assets/tuner.webp" alt="The stompbox tuner reading C sharp 4 at plus 11 cents, between the outboard and tremolo pedals" width="100%">
+<img src="assets/card-tuner.webp" alt="The stompbox tuner reading C sharp 4 at plus 11 cents, between the outboard and tremolo pedals" width="100%">
 <br><b>A tuner that mutes.</b> Stomp it, tune, stomp back.
 </td>
 </tr>
 </table>
+
+![The rest of the board — compressor, drive, phaser, tremolo, chorus, delay and reverb as stompboxes in a row](assets/fx-row.webp)
+
+**And a normal board around them.** Compressor, drive, phaser, tremolo, chorus, delay,
+reverb — plus EQ. Drag to reorder, right-click to remove, `+` to add.
 
 ---
 
