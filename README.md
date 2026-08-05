@@ -8,7 +8,7 @@
 
 ![NAMplify — a virtual pedalboard with a drive pedal, an amp capture, a cab IR, EQ and reverb](assets/board-hero.webp)
 
-## Amplify the amp. Simplify the rest.
+## Amplify the NAM. Simplify the rest.
 
 That's the name, and that's the whole idea. Getting NAM captures into something
 is easy, lots of things do that. What I was after is the bit that comes after.
