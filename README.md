@@ -8,16 +8,27 @@
 
 ![NAMplify — a virtual pedalboard with a drive pedal, an amp capture, a cab IR, EQ and reverb](assets/board-hero.webp)
 
-## Captures are the easy part. Playing them shouldn't be the hard part.
+## Amplify the amp. Simplify the rest.
 
-A NAM capture usually means opening a DAW, loading a plugin host, wiring a
-chain and hunting for files. **NAMplify is just a pedalboard.** Open it, pick an
-amp, play. The whole [TONE3000](https://www.tone3000.com) library is inside the
-app — browse, download, and it lands in the right stompbox on its own.
+The name says it: NAMplify amplifies NAM captures and simplifies everything
+that normally stands between you and them. Loading them is the easy part —
+plenty of things do that. This is about the half hour after.
 
-Free, for macOS. No DAW, no plugin host, no routing, no import dialog.
+Shove pedals around until the chain sits right. Thumb the wheel on the amp and
+walk through a whole bank of them without stopping playing. Stomp the looper
+and jam over yourself.
+
+Nothing asks you to set it up first. Drop in a full rig and the cab steps
+aside. Drop in a bare amp and it brings its own cab. Hear something in the
+[TONE3000](https://www.tone3000.com) browser and you're already playing it —
+no import, no file to find.
+
+Free, for macOS. Built for picking the guitar up for twenty minutes, not for
+running a session.
 
 **[⬇ Download the latest release](https://github.com/Roccccky/NAMplify/releases/latest)** — macOS 13+ · Apple Silicon & Intel
+
+*Standalone app for now — VST3 and AU builds are on the way. Windows folks, hang in there.*
 
 ---
 
@@ -39,7 +50,7 @@ Free, for macOS. No DAW, no plugin host, no routing, no import dialog.
 </td>
 <td width="50%" valign="top">
 <img src="assets/card-tuner.webp" alt="The stompbox tuner reading C sharp 4 at plus 11 cents, between the outboard and tremolo pedals" width="100%">
-<br><b>A tuner that mutes.</b> Stomp it, tune, stomp back.
+<br><b>A tuner.</b> Stomp it, tune, stomp back.
 </td>
 </tr>
 </table>
@@ -61,8 +72,8 @@ NAMplify pairs one automatically · `OUTBOARD` for preamps and studio gear after
 **Around them, a normal board.** Compressor, drive (two voicings + tone), EQ, chorus, phaser,
 tremolo, delay and reverb. Drag to reorder, right-click to remove, `+` to add.
 
-**Tools.** Stompbox tuner that mutes the output, drum machine, four-track looper and a
-recorder that writes WAVs.
+**Tools.** Stompbox tuner, drum machine, four-track looper and a recorder that writes
+WAVs.
 
 **Top bar.** Input gain with meter, noise gate, stereo SPREAD and output level — always in reach.
 
