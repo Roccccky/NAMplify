@@ -10,17 +10,17 @@
 
 ## Amplify the NAM. Simplify the rest.
 
-That's the name, and that's the whole idea. Getting NAM captures into something
-is easy, lots of things do that. What I was after is the bit that comes after.
+NAMplify amplifies NAM captures and simplifies everything that normally stands
+between you and them. Loading them is the easy part — plenty of things do that.
+This is about the half hour after.
 
-So everything sits on one board. Drag the pedals into whatever order you want.
-Spin the wheel on the amp and walk through a whole bank of them while you keep
-playing. Hit the looper and jam over yourself.
+Shove pedals around until the chain sits right. Thumb the wheel on the amp and
+walk through a whole bank of them without stopping playing. Stomp the looper
+and jam over yourself.
 
-You don't set anything up first. Load a full rig and the cab gets out of the
-way. Load a bare amp and it brings a cab along. Find something in the
-[TONE3000](https://www.tone3000.com) browser and you're already hearing it.
-No import, no file to go looking for.
+Click a capture in the [TONE3000](https://www.tone3000.com) browser and you're
+hearing it. Nothing to import, no folder to dig through, no guessing which slot
+it goes in. It's automatic, and it makes sense the first time.
 
 It's a free virtual pedalboard for macOS, built for picking the guitar up for
 twenty minutes. Not for running a session.
