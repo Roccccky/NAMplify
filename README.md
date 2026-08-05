@@ -35,7 +35,7 @@ minutes. Not for running a session.
 <tr>
 <td width="50%" valign="top">
 <img src="assets/card-slots.webp" alt="Four slots — PEDAL with a Tube Screamer, AMP with a Marshall 1959BJA capture, CAB with a UK Greenback IR, OUTBOARD empty" width="100%">
-<br><b>Four slots take NAM captures.</b> Pedal, amp, cab, outboard — each with its own engine.
+<br><b>Four slots take NAM captures.</b> Pedal, amp, cab, outboard. Each has its own engine.
 </td>
 <td width="50%" valign="top">
 <img src="assets/card-t3k-browser.webp" alt="The TONE3000 browser inside the app, listing amp and full-rig captures with download counts" width="100%">
@@ -57,7 +57,7 @@ minutes. Not for running a session.
 ![The rest of the board — compressor, drive, phaser, tremolo, chorus, delay and reverb as stompboxes in a row](assets/fx-row.webp)
 
 **And a normal board around them.** Compressor, drive, phaser, tremolo, chorus, delay,
-reverb — plus EQ. Drag to reorder, right-click to remove, `+` to add.
+reverb, plus EQ. Drag to reorder, right-click to remove, `+` to add.
 
 ---
 
@@ -90,13 +90,13 @@ a `.nampset`.
 4. Pick your audio interface in the settings (⚙️), then **Connect TONE3000**, sign in free and pull down an amp
 
 <details>
-<summary><b>„NAMplify can't be verified" — what that means</b></summary>
+<summary><b>"NAMplify can't be verified" &mdash; what that means</b></summary>
 
 <br>
 
 macOS shows this for any app that isn't enrolled in Apple's paid developer
-programme. It is not a warning about the app's contents — it means no
-certificate was bought.
+programme. It's not a warning about the app's contents. It just means nobody bought a
+certificate.
 
 Right-click the app and choose **Open**, then **Open Anyway**. On newer macOS
 the button sits in **System Settings → Privacy & Security**, right after the
