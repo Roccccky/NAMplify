@@ -1,24 +1,50 @@
 # NAMplify
 
-**NAM, made simple.**
+**NAM, made simple.** · **www.namplify.app**
+
+[![Latest release](https://img.shields.io/github/v/release/Roccccky/NAMplify?label=download&color=e5533c&style=for-the-badge)](https://github.com/Roccccky/NAMplify/releases/latest)
+[![macOS 13+](https://img.shields.io/badge/macOS-13%2B-2a2a32?style=for-the-badge)](https://github.com/Roccccky/NAMplify/releases/latest)
+[![Free](https://img.shields.io/badge/price-free-4caf7d?style=for-the-badge)](https://github.com/Roccccky/NAMplify/releases/latest)
 
 ![NAMplify — a virtual pedalboard with a drive pedal, an amp capture, a cab IR, EQ and reverb](assets/board-hero.webp)
 
-A **free virtual pedalboard** for macOS, **powered by the [TONE3000](https://www.tone3000.com) API**.
-Amps, pedals and IRs drop straight into the right stompbox — and you play.
-No DAW, no plugin host, no routing, no import dialog.
+## Captures are the easy part. Playing them shouldn't be the hard part.
 
-## Get started
+A NAM capture usually means opening a DAW, loading a plugin host, wiring a
+chain and hunting for files. **NAMplify is just a pedalboard.** Open it, pick an
+amp, play. The whole [TONE3000](https://www.tone3000.com) library is inside the
+app — browse, download, and it lands in the right stompbox on its own.
 
-**[⬇ Download the latest release](https://github.com/Roccccky/NAMplify/releases/latest)** — **0.5.3** · macOS 13+ · Apple Silicon & Intel
+Free, for macOS. No DAW, no plugin host, no routing, no import dialog.
 
-1. Open the DMG and drag **NAMplify** into your **Applications** folder
-2. First launch: **right-click the app → Open**, then **Open Anyway**
-3. macOS warns that the app "can't be verified" — that only means it isn't enrolled in Apple's paid developer program. On newer macOS the button sits in **System Settings → Privacy & Security**. Needed once.
-4. Allow **microphone access** so the app can hear your guitar
-5. Pick your audio interface in the settings (⚙️), then **Connect TONE3000**, sign in free and pull down an amp
+**[⬇ Download the latest release](https://github.com/Roccccky/NAMplify/releases/latest)** — macOS 13+ · Apple Silicon & Intel
 
-> You need an audio interface to get the guitar into the Mac (iRig, Focusrite Scarlett or similar).
+---
+
+<table>
+<tr>
+<td width="50%" valign="top">
+<img src="assets/slots.webp" alt="Four slots — PEDAL with a Tube Screamer, AMP with a Marshall 1959BJA capture, CAB with a UK Greenback IR, OUTBOARD empty" width="100%">
+<br><b>Four slots take NAM captures.</b> Pedal, amp, cab, outboard — each with its own engine.
+</td>
+<td width="50%" valign="top">
+<img src="assets/t3k-browser.webp" alt="The TONE3000 browser inside the app, listing amp and full-rig captures with download counts" width="100%">
+<br><b>TONE3000, inside the app.</b> Browse, favourite and download without leaving NAMplify.
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+<img src="assets/fx-tools.webp" alt="A four-track looper, a drum machine with pattern and BPM, and a recorder" width="100%">
+<br><b>Looper, drums, recorder.</b> Four tracks, patterns, and WAVs written straight to disk.
+</td>
+<td width="50%" valign="top">
+<img src="assets/tuner.webp" alt="The stompbox tuner reading C sharp 4 at plus 11 cents, between the outboard and tremolo pedals" width="100%">
+<br><b>A tuner that mutes.</b> Stomp it, tune, stomp back.
+</td>
+</tr>
+</table>
+
+---
 
 ## What's on the board
 
@@ -35,15 +61,40 @@ recorder that writes WAVs.
 
 **Top bar.** Input gain with meter, noise gate, stereo SPREAD and output level — always in reach.
 
-**TONE3000, inside the app.** Browse, favourite and download captures without leaving
-NAMplify. Downloads bundle into banks you flip through like channels; the dial on the pedal
-steps through the variants. Save the whole rig as a preset and export it as a `.nampset`.
+**Banks and presets.** Downloads bundle into banks you flip through like channels; the dial on
+the pedal steps through the variants. Save the whole rig as a preset and export it as a
+`.nampset`.
+
+## Get started
+
+> You need an audio interface to get the guitar into the Mac (iRig, Focusrite Scarlett or similar).
+
+1. Open the DMG and drag **NAMplify** into your **Applications** folder
+2. First launch: **right-click the app → Open**, then **Open Anyway**
+3. Allow **microphone access** so the app can hear your guitar
+4. Pick your audio interface in the settings (⚙️), then **Connect TONE3000**, sign in free and pull down an amp
+
+<details>
+<summary><b>„NAMplify can't be verified" — what that means</b></summary>
+
+<br>
+
+macOS shows this for any app that isn't enrolled in Apple's paid developer
+programme. It is not a warning about the app's contents — it means no
+certificate was bought.
+
+Right-click the app and choose **Open**, then **Open Anyway**. On newer macOS
+the button sits in **System Settings → Privacy & Security**, right after the
+first attempt. You only need to do this once.
+
+</details>
 
 ## Privacy
 
 NAMplify talks to exactly two addresses: `tone3000.com` when you browse or download captures,
-and (in the shipped 0.5.x builds) an update endpoint once a day. No analytics, no
-telemetry, no crash reporting, no account with me, no background process.
+and (in the shipped 0.5.x builds) an update endpoint once a day. **No analytics, no
+telemetry, no crash reporting, no account with me, no background process.** Your playing,
+your recordings and your models never leave the Mac.
 
 ## About this repository
 
