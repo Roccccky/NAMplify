@@ -22,8 +22,8 @@ way. Load a bare amp and it brings a cab along. Find something in the
 [TONE3000](https://www.tone3000.com) browser and you're already hearing it.
 No import, no file to go looking for.
 
-It's free, it's macOS, and it's built for picking the guitar up for twenty
-minutes. Not for running a session.
+It's a free virtual pedalboard for macOS, built for picking the guitar up for
+twenty minutes. Not for running a session.
 
 **[⬇ Download the latest release](https://github.com/Roccccky/NAMplify/releases/latest)** — macOS 13+ · Apple Silicon & Intel
 
