@@ -112,12 +112,6 @@ and (in the shipped 0.5.x builds) an update endpoint once a day. **No analytics,
 telemetry, no crash reporting, no account with me, no background process.** Your playing,
 your recordings and your models never leave the Mac.
 
-## About this repository
-
-This repo is the **download and the description — the source code is not published.**
-NAMplify is free to download and use, but it is not an open-source project, and there is no
-issue tracker here.
-
 ## Credits
 
 NAMplify models nothing itself. The captures are the work of the NAM project and of the
