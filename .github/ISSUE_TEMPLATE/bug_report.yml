@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a reproducible NAMplify problem.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For security vulnerabilities, follow SECURITY.md instead of posting publicly.
+        Leave out account details and tokens.
+  - type: input
+    id: version
+    attributes:
+      label: NAMplify version
+      placeholder: "2.0.0-beta.2"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system
+      placeholder: "macOS 15.2 on Apple Silicon, Windows 11, Ubuntu 24.04"
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Standalone or plugin
+      placeholder: "Standalone, or VST3/AU in Reaper 7.2, Logic 11, …"
+    validations:
+      required: true
+  - type: input
+    id: interface
+    attributes:
+      label: Audio interface and driver
+      placeholder: "USB interface, ASIO / Core Audio / PipeWire, 48 kHz, 128 samples"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Start from a fresh start of NAMplify.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Include error text or a screenshot if it helps.
+    validations:
+      required: true

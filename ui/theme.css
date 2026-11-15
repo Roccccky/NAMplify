@@ -1,0 +1,325 @@
+/* Farben und Maße der UI. Die Grundwerte (Blech, Schrift, Glas, Rot) kommen aus
+   handschrift.css. Hier steht, welches Bauteil welchen Wert trägt. Jede Größe
+   und Farbe steht hier, nicht verstreut. */
+
+/* hidden muss immer verstecken. Die Browserregel [hidden] { display: none } ist
+   die schwächste, jede Klasse mit display: flex überschreibt sie. */
+[hidden] { display: none !important; }
+
+:root {
+  /* Eingebaute Browserelemente (Scrollbalken, Auswahlfelder) dunkel. */
+  color-scheme: dark;
+
+  /* Blech: ruhiges Anthrazit, wenig Tiefe. */
+  --metal-0:  var(--hs-m0);   /* tiefster Grund */
+  --metal-1:  var(--hs-m1);   /* Fenstergrund */
+  --metal-2:  var(--hs-m2);   /* Leisten */
+  --metal-3:  var(--hs-m3);   /* Karten */
+  --metal-4:  var(--hs-m4);   /* erhabene Flächen */
+  --metal-5:  var(--hs-m5);   /* Kanten */
+  --stroke:   var(--hs-stroke);   /* Ringspur, dünne Linien */
+
+  /* Kartengehäuse: flacher, wärmerer Verlauf. */
+  --shell-top:    var(--hs-shell-top);
+  --zone-edge:    var(--hs-zone-edge);   /* Kante der Flächen */
+  --shell-bottom: var(--hs-shell-bot);
+  --edge:         var(--hs-edge);   /* Kante, wenn die Karte an ist */
+  --edge-off:     var(--hs-edge-off);   /* Kante, wenn aus */
+
+  /* Fußschalter: Ring mit dunkler Scheibe, die sich eingeschaltet mit Farbe
+     füllt. */
+  --switch-edge: var(--hs-switch-edge);
+  --switch-top:  #2d2d2d;
+  --switch-bot:  #242424;
+  --status-off:  #272727;
+
+  /* Mulden: flacher Verlauf, dunkel oben, hell unten (Lippe). Nicht
+     reinschwarz, sonst wirkt es wie ein Loch. */
+  --well-top:    var(--hs-well-top);
+  --well-bot:    var(--hs-well-bot);
+  --well-lip:    var(--hs-well-lip);
+  --well-bg:     linear-gradient(180deg, var(--well-top), var(--well-bot));
+  --well-shadow: inset 0 1px 0 rgba(0,0,0,.55), inset 0 -1px 0 var(--well-lip);
+
+  /* Erhabenes: hell von oben, Schatten nach unten. Ein Satz für alle Bauteile,
+     die aus dem Blech herauskommen (Knöpfe, Größenstufen, Kacheln). */
+  --raise-top:    var(--hs-raise-top);
+  --raise-bottom: var(--hs-raise-bot);
+  --raise-bg:     linear-gradient(180deg, var(--raise-top), var(--raise-bottom));
+  --raise-shadow: var(--hs-raise-shadow);
+
+  /* Was über einem Bild oder einer Vorschau liegt, bekommt einen Schatten als
+     Kante, keinen zweiten Rahmen. */
+  --lift-1: 0 1px 3px rgba(0,0,0,.55);
+  --lift-2: 0 2px 6px rgba(0,0,0,.6), 0 0 2px rgba(0,0,0,.5);
+
+  /* Hof: ein Schatten in der Farbe der Karte. Auf blankem Blech unsichtbar,
+     über einem Vorschaubild hebt er Schrift und Scheibe ab. */
+  --halo:      var(--shell-bottom);
+  /* Eng an der Schrift, damit die Buchstaben freigestellt werden, ohne die
+     Karte abzudunkeln. */
+  --halo-text: 0 0 2px var(--halo), 0 0 3px var(--halo);
+  /* 3 px weich, feste Größe, ohne spread. Mit spread entsteht ein grauer Ring,
+     und mit --scale würde er auf großen Fenstern zur Wolke. */
+  --halo-ring: 0 0 3px var(--halo);
+
+  /* Schrift: durchgehend Monospace, damit Zahlen beim Zählen nicht springen und
+     Beschriftungen bündig stehen. --font-sans für seltenen Fließtext. */
+  /* Anzeigefeld: dunkle Scheibe mit heller Kante wie ein eingesetztes Display.
+     Bankname hell, Variante gedämpft darunter. */
+  --screen-top:    var(--hs-screen-top);
+  --screen-bot:    var(--hs-screen-bot);
+  --screen-edge:   var(--hs-screen-edge);
+  --screen-edge-t: var(--hs-screen-edge-t);
+  --screen-text:   var(--hs-screen-text);
+  --screen-dim:    var(--hs-screen-dim);
+  --screen-arrow:  var(--hs-screen-arrow);
+
+  /* Schriftfarben neutral wie das Blech. */
+  --ink:      var(--hs-ink);
+  --ink-dim:  var(--hs-dim);
+  --ink-far:  var(--hs-far);
+  --ink-off:  var(--hs-off);
+
+  --font-mono: var(--hs-font);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  --font: var(--font-mono);
+
+  /* Kartenfarben. Sie kommen vom Programm, das hier sind die Rückfallwerte. Bei
+     Änderungen drei Stellen anpassen: plugin/src/ui/WebBridge.cpp (Quelle),
+     hier und ui/mock.js. */
+  --c-gate:     #8d99a8;   /* kühles Grau */
+  --c-comp:     #46b4e6;   /* Hellblau */
+  --c-drive:    #5fb03a;   /* sattes Grün */
+  --c-pedal:    #2fbf9c;   /* Türkis, Pedal */
+  --c-amp:      #e04a3a;   /* Rot, Programmfarbe */
+  --c-eq:       #c4ccd6;   /* Silbergrau */
+  --c-cab:      #e8c34a;   /* Bernstein */
+  --c-outboard: #b25ad0;   /* Pflaumenviolett */
+  --c-chorus:   #4a86e8;   /* Blau */
+  --c-flanger:  #8a6ae8;   /* Blauviolett */
+  --c-phaser:   #f0912a;   /* Orange */
+  --c-tremolo:  #e56aa8;   /* Pink */
+  --c-delay:    #4e9f72;   /* gedecktes Grün */
+  --c-reverb:   #3fc3e0;   /* Cyan */
+  --c-looper:   #d9d9d9;   /* helles Grau, die Farbe tragen die Spuren */
+  --c-drums:    #949aa3;   /* Grau */
+  --c-recorder: #d24a3c;   /* Rot, Aufnahme */
+
+  /* Hauptfarbe für Hervorhebungen: gewählter Kachelrahmen, aktive Zeile,
+     bestätigender Knopf, Eingabefeld unter dem Zeiger. Das Rot des Programms.
+     --accent ist ein älterer Alias. */
+  --highlight:      var(--hs-hl);
+  --highlight-deep: var(--hs-hl-deep);   /* gedrückt, und der Grund unter dem Zeiger */
+  --highlight-soft: #3a1512;   /* getönte Fläche, etwa der Stumm-Streifen */
+  --highlight-ink:  #f0c9c5;   /* Schrift auf getönter Fläche */
+
+  /* Was an ist, ist ganz gefüllt, nicht nur umrandet oder eingefärbt. So sieht
+     man es auch aus Abstand. Gilt für aktive Reiter, gewählte Seiten und
+     eingerastete Schalter. */
+  --highlight-fill:      linear-gradient(180deg, var(--highlight), var(--highlight-deep));
+  --highlight-fill-ink:  #fff;
+  --accent:  var(--highlight);
+
+  --ok:      var(--hs-ok);
+  --warn:    var(--hs-warn);
+  --error:   #e2574c;
+
+  /* Schwebende Flächen: Dialog, Kontextliste, Toast. Ein Satz für alle, neutral
+     wie Karten und Leisten. */
+  --panel-top:    #272727;
+  --panel-bottom: #1c1c1c;
+  --panel-bg:     linear-gradient(180deg, var(--panel-top), var(--panel-bottom));
+  --panel-edge:   rgba(255,255,255,.07);
+  --panel-shadow: 0 18px 44px rgba(0,0,0,.7), inset 0 1px 0 var(--panel-edge);
+
+  /* Linien und Auflagen in drei Stufen: ruhend, unter dem Zeiger, eingerastet. */
+  --tint-1:  var(--hs-tint-1);
+  --tint-2:  var(--hs-tint-2);
+  --tint-3:  var(--hs-tint-3);
+
+  --hairline:      rgba(255,255,255,.06);   /* Trennlinie auf heller Fläche */
+  --hairline-dark: #0b0b0b;                 /* Trennlinie zwischen Flächen */
+  --stroke-bright: var(--hs-stroke-bright);                 /* Kante unter dem Zeiger */
+
+  /* Pegelskala. Der Verlauf liegt auf der ganzen Bahn, die Füllung wird mit
+     clip-path beschnitten. Läge er auf dem wachsenden Füllstück, liefe er bei
+     jedem Pegel ganz durch.
+
+     Kein Grün, die UI ist sonst monochrom mit farbigen Karten. Normal neutral
+     hell, oben warm, ganz oben rot. */
+  --meter-calm: #a0a0a0;
+  /* Harte Stufen statt Verlauf, damit die Grenze an einer festen Stelle steht.
+     Dieselbe Bahn für Pegel, CPU und Recorder. */
+  /* Die Kanten liegen auf dB-Marken: ab −6 dB warm, über 0 dB rot. Auf der
+     Skala von pegelSkala (−36 … +12 dB) sind das 62,5 % und 75 %. */
+  --meter-scale: linear-gradient(90deg,
+                 var(--meter-calm) 0 62.5%,
+                 var(--warn)      62.5% 75%,
+                 var(--error)     75% 100%);
+  --meter-scale-up: linear-gradient(0deg,
+                    var(--meter-calm) 0 62.5%,
+                    var(--warn)      62.5% 75%,
+                    var(--error)     75% 100%);
+
+  /* Größen. Grundzahlen: Pedal 152×260, Ecke 16, Reglerring 28. --scale setzt
+     app.js. */
+  --scale: 1.4;
+
+  /* Maße der Karte, alle abhängig von --scale. */
+  --pedal-w:      calc(152px * var(--scale));
+  --pedal-h:      calc(260px * var(--scale));
+  --artwork-top:  calc(92px * var(--scale));
+  --artwork-h:    calc(122px * var(--scale));
+  --corner:       calc(16px * var(--scale));
+  --pedal-gap:    14px;
+  --row-fade:     56px;
+
+  --content-top:    calc(13px * var(--scale));
+  --content-inset:  calc(13px * var(--scale));
+  --knob-gap:       calc(11px * var(--scale));
+  --screen-h:       calc(40px * var(--scale));
+  --screen-inset:   calc(13px * var(--scale));
+  --row-to-screen:  calc(8px * var(--scale));
+  --screen-pad-x:   calc(8px * var(--scale));
+  --screen-pad-y:   calc(7px * var(--scale));
+  --row-gap:        calc(4px * var(--scale));
+  --row-to-switch:  calc(12.5px * var(--scale));
+  --switch-band:    calc(42px * var(--scale));
+  --steps-to-switch: calc(9px * var(--scale));
+  --switch-row-h:   calc(32px * var(--scale));
+
+  /* Schaltschienen (NORM/RAW, Kippschalter, Stufenschalter) teilen sich einen
+     Satz Maße. */
+  --switch-rail-h:  calc(14px * var(--scale));
+  --switch-dot:     calc(10px * var(--scale));
+  --switch-font:    calc(6.5px * var(--scale));
+
+  --knob-ring:      calc(28px * var(--scale));
+  --knob-ring-w:    calc(2.1px * var(--scale));
+  --knob-ptr-w:     calc(2px * var(--scale));
+  --knob-ptr-h:     calc(8px * var(--scale));
+  --knob-ptr-y:     calc(-9px * var(--scale));
+  --knob-cap-gap:   calc(7px * var(--scale));
+  --knob-cap-h:     calc(12px * var(--scale));
+  --knob-cap-pt:    calc(8px * var(--scale));
+
+  /* Kompaktregler (IN/OUT, GATE/SPREAD, Looper-Spur) haben feste Größen. */
+  --knobc-ring:     21px;
+  --knobc-ptr-w:    1.6px;
+  --knobc-ptr-h:    6px;
+  --knobc-ptr-y:    -6.5px;
+  --knobc-cap-pt:   9px;
+  --knobc-cap-w:    44px;
+
+  --bank-font:   calc(7px * var(--scale));
+  --preset-font: calc(5.8px * var(--scale));
+
+  --tile-w: 46px;
+  --tile-h: 54px;
+  --tile-gap: 10px;
+
+  /* Aliasnamen für bestehende Verwendungen. */
+  --card-w:  var(--pedal-w);
+  --card-h:  var(--pedal-h);
+  --card-gap: var(--pedal-gap);
+  --knob:    var(--knob-ring);
+  --knob-sm: var(--knobc-ring);
+  --radius:  var(--corner);
+
+  /* Luft über der Wortmarke für die Fensterknöpfe. Die Titelleiste selbst liegt
+     außerhalb der Seite (plugin/src/PluginEditor.h, titleBarHeight). */
+  --header-h: 62px;
+  --header-top: 4px;
+
+  /* Lasche der Schublade, offen schmaler. */
+  --drawer-tab-w:  48px;
+  --drawer-tab-h: 224px;
+
+  --ease: var(--hs-ease);
+}
+
+/* --scale setzt app.js direkt auf :root, wo die Größen-Tokens var(--scale)
+   ausrechnen. Auf einem Kind gesetzt, blieben die Tokens beim :root-Wert.
+   data-zoom markiert nur die Stufe. */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--metal-1);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 13px;
+  /* Fett (700): auf dunklem Grund wirkt die kleine Monospace-Schrift sonst zu
+     dünn. SF Mono hat echte Schnitte bis Bold, deshalb nicht 800. */
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+input {
+  font: inherit;
+  color: var(--ink);
+  background: var(--well-bg);
+  border: 1px solid var(--metal-5);
+  border-radius: 4px;
+  padding: 5px 8px;
+  box-shadow: var(--well-shadow);
+  outline: none;
+}
+input:focus { border-color: var(--highlight); }
+
+::-webkit-scrollbar { height: 7px; width: 7px; }
+::-webkit-scrollbar-track { background: var(--metal-0); }
+::-webkit-scrollbar-thumb { background: var(--metal-5); border-radius: 4px; border: 1px solid var(--metal-0); }
+::-webkit-scrollbar-thumb:hover { background: var(--stroke-bright); }
+::-webkit-scrollbar-corner { background: var(--metal-0); }
+* { scrollbar-width: thin; scrollbar-color: var(--metal-5) var(--metal-0); }
+
+/* Gebürstetes Blech: feine, gerichtete Struktur für große Flächen. */
+.brushed {
+  background-image:
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255,.014) 0 1px,
+      rgba(0,0,0,.014) 1px 2px);
+}
+
+.well {
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  border-radius: 4px;
+}
+
+.raised {
+  background: var(--raise-bg);
+  box-shadow: var(--raise-shadow);
+}
+
+.label {
+  font-size: 8px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-far);
+  white-space: nowrap;
+}
+
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* Für alles, was von selbst verschwindet. Angehaltene Übergänge holt app.js
+   nach, wenn das Fenster wieder sichtbar wird. */
+.fade { transition: opacity .18s var(--ease); }

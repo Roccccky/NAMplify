@@ -1,0 +1,313 @@
+/* Fensteraufbau */
+
+.root {
+  display: grid;
+  grid-template-rows: var(--header-h) auto 1fr;
+  height: 100vh;
+
+  /* Die Zeilen werden ausdrücklich vergeben. Sonst fällt ein ausgeblendetes
+     Kind aus dem Raster und alles dahinter rutscht hoch. */
+  /* Einfarbig, weil die Titelleiste nur eine Farbe kann. Sie bekommt denselben
+     Wert (plugin/src/ui/DarkTitleBar.mm). */
+  background: var(--metal-1);
+}
+
+/* Kopfleiste */
+/* Ohne eigenen Hintergrund und ohne Trennlinie. Links die Wortmarke, mittig die
+   Anzeige, rechts die Symbole, alle auf einer Mittellinie. */
+.header {
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: var(--header-top) 16px 0 18px;
+  background: none;
+  z-index: 30;
+}
+
+/* Die Wortmarke ist Systemschrift: Monospace, dünn, weit gesperrt. */
+.header-left { flex: 1 1 0; min-width: 0; display: flex; align-items: center; gap: 18px; }
+.brand { flex: none; display: flex; align-items: center; }
+
+/* Räume: Reiter mit Linie unter dem gewählten. */
+.rooms { display: flex; gap: 2px; }
+.rooms button {
+  position: relative;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  color: var(--ink-far);
+  font: 700 12px/1 var(--font-mono);
+  letter-spacing: .14em;
+  transition: color .12s var(--ease), background .12s var(--ease);
+}
+.rooms button:hover:not(:disabled) { color: var(--ink); background: var(--tint-1); }
+/* Gesperrter Raum: gedimmt, mit einem kleinen SOON daneben. */
+.rooms button:disabled { opacity: .45; cursor: default; }
+.room-soon {
+  margin-left: 6px;
+  padding: 2px 4px 1px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-size: 8px;
+  letter-spacing: .12em;
+  vertical-align: 2px;
+}
+.rooms button[data-on="true"] { color: var(--ink); }
+.rooms button[data-on="true"]::after {
+  content: "";
+  position: absolute;
+  left: 10px; right: 10px; bottom: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--highlight);
+}
+.brand-word {
+  font-family: var(--font-mono);
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: .3em;
+  color: var(--ink);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.header-center { flex: 0 1 560px; min-width: 200px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+.header-center .screen-display { flex: 1 1 380px; min-width: 0; }
+
+/* NEW und SAVE neben der Anzeige. */
+.header-rig-buttons { display: flex; gap: 6px; flex: none; }
+.hs-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 12px;
+  border: 0; border-radius: 4px;
+  background: linear-gradient(180deg, var(--hs-raise-top), var(--hs-raise-bot));
+  box-shadow: var(--hs-raise-shadow);
+  color: var(--hs-dim);
+  font: 700 11px/1 var(--hs-font);
+  letter-spacing: .14em;
+  cursor: pointer;
+}
+.hs-btn svg { width: 14px; height: 14px; }
+.hs-btn:hover { color: var(--hs-ink); }
+.hs-btn[data-dirty="true"] { background: var(--hs-hl-fill); color: #fff; box-shadow: none; }
+.hs-btn[data-dirty="true"]:hover { filter: brightness(1.12); }
+
+.header-right {
+  flex: 1 1 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Anzeige: dunkles Glas, helle Kante oben, Dreieckspfeile. */
+.screen-display {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 34px;
+  background: linear-gradient(180deg, var(--screen-top), var(--screen-bot, var(--screen-top)));
+  border: 1px solid var(--screen-edge, var(--stroke));
+  border-top-color: var(--screen-edge-t);
+  border-radius: 5px;
+  user-select: none;
+}
+.screen-display-arrow {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 100%;
+  color: var(--screen-arrow);
+}
+.screen-display-arrow::before {
+  content: "";
+  width: 6px; height: 10px;
+  background: currentColor;
+  clip-path: polygon(100% 0, 0 50%, 100% 100%);
+}
+.screen-display-arrow[data-dir="right"]::before { clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.screen-display-arrow:hover { color: var(--screen-text); }
+.screen-display-value {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: var(--screen-text);
+  font: 600 13px/1 var(--font-mono);
+  letter-spacing: .04em;
+}
+.screen-display-value b { flex: none; color: var(--screen-dim); font-weight: 600; font-size: 11px; letter-spacing: .12em; }
+.screen-display-value span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.screen-display-value span[data-empty="true"] { color: var(--screen-dim); }
+
+.screen-display[data-preview="true"] { border-color: var(--highlight); }
+.screen-display[data-preview="true"] .screen-display-value span { color: var(--hs-hl-ink); }
+.screen-display-value { cursor: ns-resize; }
+
+/* Liste unter der Anzeige: so breit wie die Anzeige, dunkles Blech, der
+   geladene Eintrag mittig. */
+.screen-dial {
+  position: absolute;
+  z-index: 60;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  min-width: 220px;
+  padding: 6px;
+  background: var(--metal-2);
+  border: 1px solid var(--metal-4);
+  border-radius: 7px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.45);
+}
+.screen-dial small { display: block; padding: 2px 6px 6px; color: var(--ink-far); font-size: 11px; letter-spacing: .14em; }
+.screen-dial-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 6px;
+  border-radius: 5px;
+  color: var(--ink-dim);
+  font: 500 12px/1.2 var(--font-mono);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.screen-dial-row span { overflow: hidden; text-overflow: ellipsis; }
+.screen-dial-row b { flex: none; min-width: 26px; color: var(--ink-far); font-weight: 500; }
+.screen-dial-row[data-cur="true"] { color: var(--ink); }
+.screen-dial-row[data-on="true"] { background: var(--metal-4); color: var(--ink); }
+.screen-dial-row[data-on="true"] b { color: var(--hs-hl-ink); }
+.screen-dial-list { max-height: min(60vh, 420px); overflow-y: auto; scrollbar-width: thin; display: flex; flex-direction: column; gap: 1px; }
+.screen-dial-list .screen-dial-row:hover { background: var(--metal-3); color: var(--ink); }
+.screen-dial-list .screen-dial-row[data-on="true"]:hover { background: var(--metal-4); }
+.screen-dial-empty { padding: 8px 6px; color: var(--ink-far); font-size: 12px; }
+
+.header-sep {
+  width: 1px;
+  height: 22px;
+  background: linear-gradient(180deg, transparent, var(--stroke-bright), transparent);
+}
+
+.icon-button {
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border-radius: 6px;
+  color: var(--ink-dim);
+  transition: color .12s var(--ease), background .12s var(--ease);
+}
+.icon-button:hover { color: var(--ink); background: var(--tint-1); }
+.icon-button[data-active="true"] { color: var(--highlight); }
+.icon-button svg { width: 16px; height: 16px; }
+
+/* Stumm-Streifen */
+/* Der Streifen nimmt bewusst Platz weg. Der stumme Start schützt vor
+   Rückkopplung und soll nicht übersehen werden. */
+.mute-banner {
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  height: 34px;
+  background: var(--highlight-soft);
+  border-bottom: 1px solid var(--stroke);
+  z-index: 25;
+}
+
+.mute-banner-text {
+  font-size: 12px;
+  letter-spacing: .03em;
+  color: var(--highlight-ink);
+}
+
+.mute-banner-button {
+  padding: 4px 14px;
+  border-radius: 4px;
+  font-size: 10px;
+  letter-spacing: .16em;
+  /* Derselbe bestätigende Knopf wie überall: Hauptfarbe, heller Rand oben. */
+  background: var(--highlight-fill);
+  color: var(--highlight-fill-ink);
+}
+.mute-banner-button:hover { filter: brightness(1.12); }
+
+/* Pegelpaar */
+/* Regler und Anzeige bilden ein Paar, die Anzeige trägt den Namen. */
+.level-pair { display: flex; align-items: center; gap: 6px; }
+
+/* Die Beschriftungszeile des Rings bleibt leer, den Namen trägt die Zeile
+   darunter. */
+.level-pair { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.level-pair .knob-caption { display: none; }
+.level-pair .knob { gap: 0; }
+
+/* Der Name steht unter dem Ring, nicht auf der Bahn. */
+.level-caption {
+  /* Feste Breite: stumm steht MUTED statt IN, die Spalte soll dabei nicht
+     wachsen. */
+  width: 44px;
+  text-align: center;
+  font-size: 7px;
+  line-height: 1;
+  letter-spacing: .13em;
+  color: var(--ink-dim);
+  cursor: default;
+  user-select: none;
+}
+.level-pair[data-muted="true"] .level-caption { color: var(--highlight-ink); }
+
+/* Pegelbahn 72 × 6, feste Größe. */
+.level-meter {
+  position: relative;
+  width: 72px;
+  height: 6px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.level-meter-fill {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;             /* schneidet die dunkle Namenskopie ab */
+  /* Verlauf über die ganze Bahn, Ausschlag per clip-path (siehe --meter-scale
+     in theme.css). */
+  background: var(--meter-scale);
+  clip-path: inset(0 calc((1 - var(--v, 0)) * 100%) 0 0);
+  transition: clip-path .05s linear;
+}
+
+/* Stumm zeigt es auch die Bahn. */
+/* Pegel der Eingangskanäle in den Einstellungen, dieselbe Bahn. */
+.channel-meter { width: 150px; height: 6px; }
+
+.level-meter[data-muted="true"] { box-shadow: var(--well-shadow), inset 0 0 0 1px var(--highlight-deep); }
+
+/* CPU oben rechts */
+/* Pille mit Namen, Auslastung als Zahl daneben, grau, ab 90 % warm. */
+.header-cpu { display: flex; align-items: center; margin-right: 6px; }
+.header-cpu .level-meter { width: 52px; height: 12px; }
+.header-cpu .level-meter-fill { background: color-mix(in srgb, var(--ink-dim) 85%, transparent); }
+.header-cpu .level-meter-fill[data-warm="true"] { background: var(--error); }
+.header-cpu .level-meter-label {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; line-height: 1; letter-spacing: .13em;
+  color: var(--ink-dim); pointer-events: none;
+}
+/* Die Glättung steckt in app.js. Hier nur Ziffern gleicher Breite in fester
+   Spalte. */
+.desk-readout {
+  min-width: 38px; margin-left: 7px;
+  font-family: var(--font-mono); font-variant-numeric: tabular-nums;
+  font-size: 11px; letter-spacing: .04em;
+  color: var(--ink-dim); text-align: right;
+}
+.desk-readout[data-warm="true"] { color: var(--ink); }

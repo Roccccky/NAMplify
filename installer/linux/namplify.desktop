@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=NAMplify
+GenericName=Guitar pedalboard
+Comment=Neural amp captures, pedals and TONE3000 on one board
+Exec=@BIN@ %u
+Icon=namplify
+Terminal=false
+Categories=AudioVideo;Audio;Music;
+StartupWMClass=NAMplify
+MimeType=x-scheme-handler/namplify;

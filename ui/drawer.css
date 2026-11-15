@@ -1,0 +1,379 @@
+/* Browser: TONE3000 und die eigene Bibliothek. Rahmen und Reiter stehen in
+   rig.css, hier der Inhalt. */
+
+.drawer-inner {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Kopfzeile */
+/* Flach und grau: die Liste ist ein Werkzeug zum Suchen, keine nachgebaute
+   Hardware. Keine Hauptfarbe. Farbe tragen nur die Kategorien und der Knopf am
+   Zeilenende, wenn etwas lokal liegt. */
+.drawer-head {
+  padding: 14px 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Reiter, Suche, Sortierung und Ansicht in einer Zeile ohne Umbruch, alle
+   gleich hoch. Sie sitzen in Mulden. Der aktive Reiter ist eine graue Fläche. */
+.drawer-tools {
+  --tool-h: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+.drawer-tabs {
+  display: flex;
+  gap: 2px;
+  flex: 0 0 auto;
+  height: var(--tool-h);
+  padding: 2px;
+  border-radius: 5px;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+}
+
+.drawer-tab-btn {
+  /* Schmale Reiter, der Platz gehört der Suche. */
+  padding: 0 7px;
+  border-radius: 3px;
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: var(--ink-off);
+  transition: color .12s var(--ease), background .12s var(--ease);
+}
+.drawer-tab-btn:hover { color: var(--ink-dim); background: var(--tint-1); }
+.drawer-tab-btn[data-on="true"] { color: var(--ink); background: var(--tint-3); }
+
+.drawer-search {
+  flex: 1;
+  min-width: 60px;
+  height: var(--tool-h);
+  padding: 0 10px;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  border: 0;
+  border-radius: 5px;
+  font-size: 11px;
+}
+.drawer-search:focus { box-shadow: var(--well-shadow), inset 0 0 0 1px var(--stroke-bright); }
+
+/* Aufklappliste statt Durchklicken. */
+.drawer-sort {
+  position: relative;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+.drawer-sort-button {
+  width: 100%;
+  white-space: nowrap;
+  height: var(--tool-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 0 7px;
+  border-radius: 5px;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  font-size: 11px;
+  color: var(--ink-dim);
+  transition: color .12s var(--ease);
+}
+.drawer-sort-button:hover { color: var(--ink); }
+.drawer-sort-button svg { width: 8px; height: 8px; }
+
+.drawer-view-toggle {
+  display: flex;
+  gap: 2px;
+  flex: 0 0 auto;
+  height: var(--tool-h);
+  padding: 2px;
+  border-radius: 5px;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+}
+.drawer-view-btn {
+  width: 24px;
+  display: grid; place-items: center;
+  border-radius: 3px;
+  color: var(--ink-off);
+}
+.drawer-view-btn:hover { color: var(--ink-dim); background: var(--tint-1); }
+.drawer-view-btn[data-on="true"] { color: var(--ink); background: var(--tint-3); }
+.drawer-view-btn svg { width: 13px; height: 13px; }
+
+/* Kategorien als Textreihe mit farbigem Unterstrich, ohne Kästen. */
+.drawer-cats { display: flex; gap: 12px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.drawer-cats::-webkit-scrollbar { display: none; }
+
+.drawer-cat {
+  position: relative;
+  flex: 0 0 auto;
+  /* AMP+CAB bleibt in einer Zeile. */
+  white-space: nowrap;
+  padding-bottom: 5px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--cat-colour, var(--ink-off));
+  opacity: .72;
+  transition: opacity .12s var(--ease);
+}
+.drawer-cat:hover { opacity: 1; }
+.drawer-cat[data-on="true"] { opacity: 1; }
+.drawer-cat[data-on="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--cat-colour, var(--ink-dim));
+}
+
+/* Liste */
+.drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 0 20px;
+}
+
+.drawer-list[data-view="shelf"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  padding: 12px 14px 24px;
+}
+
+/*
+ * Eine Zeile: LED, Vorschaubild, Name und Angaben, n VAR, Haltekasten. Feste
+ * Höhe (46 px), damit die Liste gleichmäßig bleibt.
+ */
+.t3k-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 46px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--hairline-dark);
+  cursor: pointer;
+  transition: background .12s var(--ease);
+}
+.t3k-row:hover { background: var(--tint-1); }
+
+/* Die LED ist eine stehende Lasche wie der Statusstreifen auf der Karte, nur
+   senkrecht. Leuchtet heißt: liegt lokal. */
+.t3k-led {
+  width: 4px; height: 26px;
+  border-radius: 999px;
+  background: var(--metal-2);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.9);
+  flex: none;
+}
+/* In der Regalansicht steht sie neben einer Textzeile und ist so hoch wie
+   diese. */
+.t3k-card-row .t3k-led { height: 12px; width: 3px; }
+.t3k-row[data-here="true"] .t3k-led {
+  background: var(--row-colour, var(--ok));
+  box-shadow: 0 0 6px var(--row-colour, var(--ok));
+}
+.t3k-row[data-busy="true"] .t3k-led {
+  background: var(--row-colour, var(--ink-dim));
+  animation: ledPulse .8s ease-in-out infinite;
+}
+@keyframes ledPulse { 50% { opacity: .25; } }
+
+/* Vorschaubild: das ganze Bild. Fehlt es noch, steht dort das Kategoriezeichen. */
+/* Querformat, weil Gerätefotos breiter als hoch sind. */
+.t3k-thumb {
+  position: relative;
+  width: 48px; height: 41px;
+  flex: none;
+  border-radius: 3px;
+  background: var(--metal-0);
+  box-shadow: var(--well-shadow);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.t3k-thumb img {
+  /* Absolut über die ganze Mulde gelegt. Als Rasterelement greift height: 100%
+     nicht (Zeilenhöhe inhaltsbestimmt), dann wächst der Kasten mit und
+     object-fit: cover wirkt nicht. */
+  position: absolute;
+  inset: 0;
+  z-index: 1;              /* über dem Zeichen */
+  width: 100%; height: 100%;
+  /* Rahmen füllen, mittig beschneiden. */
+  object-fit: cover;
+  object-position: center;
+  opacity: 0;
+  transition: opacity .2s var(--ease);
+}
+.t3k-thumb img[data-loaded="true"] { opacity: 1; }
+
+/* Das Kategoriezeichen liegt unter dem Bild und tritt zurück, sobald eins da
+   ist. */
+.t3k-thumb-icon {
+  position: absolute;
+  z-index: 0;
+  width: 20px; height: 20px;
+  color: var(--ink-off);
+  opacity: .5;
+  transition: color .18s var(--ease), opacity .18s var(--ease);
+}
+.t3k-thumb[data-image="true"] .t3k-thumb-icon { opacity: .18; }
+
+
+.t3k-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.t3k-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* Eine Zeile Angaben, klein und gesperrt: Gerätetyp und Autor. */
+.t3k-meta {
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--ink-far);
+  display: flex; gap: 7px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.t3k-meta-cat { color: var(--row-colour, var(--ink-far)); letter-spacing: .1em; }
+
+.t3k-var {
+  flex: none;
+  min-width: 52px;
+  text-align: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--ink-far);
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+}
+.t3k-var:hover { color: var(--ink-dim); background: var(--tint-2); }
+
+/* Während eine Zeile lädt, pulsiert die LED, und an der Stelle der VAR-Pille
+   läuft ein Balken. */
+.t3k-progress {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  overflow: hidden;
+}
+.t3k-progress-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0%;
+  background: var(--row-colour, var(--ink-dim));
+  transition: width .1s linear;
+}
+.t3k-progress[data-unknown="true"] .t3k-progress-fill {
+  width: 35%;
+  animation: slide 1.1s ease-in-out infinite;
+}
+@keyframes slide { 0% { left: -35%; } 100% { left: 100%; } }
+
+/* Haltekasten */
+.t3k-hold {
+  flex: none;
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  border-radius: 5px;
+  color: var(--ink-far);
+  background: var(--tint-1);
+  transition: color .12s var(--ease), background .12s var(--ease);
+}
+/* Lokal vorhanden: das Laufwerkssymbol trägt die Kategoriefarbe. Grau heißt
+   noch nicht geholt. */
+.t3k-hold[data-mode="delete"] {
+  color: var(--row-colour, var(--ink-far));
+  background: color-mix(in srgb, var(--row-colour, #fff) 14%, transparent);
+}
+.t3k-hold:hover { color: var(--ink); background: var(--tint-3); }
+.t3k-hold[data-mode="delete"]:hover { color: #fff; background: var(--highlight-deep); }
+.t3k-hold svg { width: 14px; height: 14px; }
+
+/* Varianten: eingerückt und dunkler */
+.t3k-variants { background: rgba(0,0,0,.28); }
+.t3k-variant { padding-left: 40px; }
+.t3k-variant .t3k-title { font-size: 11px; color: var(--ink-dim); }
+.t3k-variant[data-here="true"] .t3k-title { color: var(--ink); }
+
+.t3k-spinner {
+  display: grid;
+  place-items: center;
+  padding: 14px;
+  color: var(--ink-off);
+}
+.t3k-spinner svg { width: 18px; height: 18px; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Laden, keine Treffer und Fehler erscheinen gleich: eine Zeile in der Mitte,
+   Fehler in Rot. */
+.drawer-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--ink-far);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.drawer-state[data-kind="error"] { color: var(--error); }
+
+.drawer-state-title { font-size: 13px; color: var(--ink); letter-spacing: .04em; }
+
+.drawer-button {
+  padding: 8px 18px;
+  border-radius: 5px;
+  font-size: 11px;
+  letter-spacing: .16em;
+  background: var(--tint-2);
+  color: var(--ink);
+  transition: background .12s var(--ease);
+}
+.drawer-button:hover { background: var(--tint-3); }
+.drawer-button[data-accent="true"] {
+  background: var(--highlight-fill);
+  color: var(--highlight-fill-ink);
+}
+
+/* Regalansicht: die Kachel ist eine Mulde mit Bild. */
+.t3k-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 7px;
+  background: var(--tint-1);
+  cursor: pointer;
+}
+.t3k-card:hover { background: var(--tint-2); }
+.t3k-card .t3k-thumb { width: 100%; height: 96px; }
+.t3k-card-row { display: flex; align-items: center; gap: 6px; }
+/* Der Knopf steht rechtsbündig, in jeder Kachel an derselben Stelle. */
+.t3k-card-row .t3k-hold { margin-left: auto; }
+.t3k-card-row .t3k-meta { min-width: 0; }
+
+/* TONE3000-Wortlogo über dem Verbinden-Schritt. */
+.drawer-t3k-logo { width: 168px; max-width: 70%; margin-bottom: 14px; }
+.drawer-t3k-logo svg { width: 100%; height: auto; display: block; }

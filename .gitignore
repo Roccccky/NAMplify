@@ -1,0 +1,12 @@
+# Build output and fetched sources
+build/
+third_party/
+release/
+out/
+installer/redist/
+
+# macOS
+.DS_Store
+
+# Local copies of old releases
+.releases/

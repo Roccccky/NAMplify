@@ -1,0 +1,22 @@
+name: Feature request
+description: Suggest an improvement to NAMplify.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Describe what you play and where NAMplify gets in the way.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives or examples
+      description: Workarounds, sketches or links. Do not upload third-party captures or IRs.

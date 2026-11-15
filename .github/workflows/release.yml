@@ -1,0 +1,240 @@
+name: Release
+
+# Tag v* → draft release with installers for macOS, Windows and Linux,
+# SHA256SUMS.txt and the license notices. Nothing is published until the
+# draft is reviewed and released by hand. Betas are released as Latest too,
+# so the newest version always shows first.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build (e.g. v2.0.0-beta.1)"
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Verify repository
+        run: node tools/verify-repository.mjs
+      - name: Check tag against CMake version and changelog
+        id: version
+        run: |
+          node tools/verify-release.mjs --tag "$TAG"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+      - name: Create draft pre-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release $TAG exists; assets will be replaced."
+            exit 0
+          fi
+          # The notes are the CHANGELOG section of this version plus how to install.
+          v="${TAG#v}"
+          awk -v v="$v" '/^## / { if (on) exit; if ($2 == v) { on = 1; next } } on' CHANGELOG.md > changes.md
+          test -s changes.md
+          {
+            echo "**NAMplify $v for macOS, Windows and Linux**"
+            echo
+            cat changes.md
+            sed "s/@V@/$v/g" <<'EOF'
+          ### Download
+
+          | System | File |
+          | --- | --- |
+          | macOS 11+, Apple Silicon and Intel | `NAMplify_@V@_macos_universal.pkg` (app, VST3, AU) |
+          | Windows 10/11, x64 | `NAMplify_@V@_windows_x64_setup.exe` (app, VST3) |
+          | Linux x64, glibc 2.35+ | `NAMplify_@V@_linux_x64.tar.gz` (app, VST3) |
+
+          The beta builds aren't signed yet:
+
+          - **macOS**: right-click the installer → **Open** → **Open**. If macOS says the app is damaged, run `xattr -dr com.apple.quarantine /Applications/NAMplify.app` once.
+          - **Windows**: SmartScreen shows "Windows protected your PC". Click **More info** → **Run anyway**.
+          - **Linux**: unpack, then `./install.sh`. Needs WebKitGTK 4.1; `./install.sh --check` tells you what's missing.
+
+          Checksums: `SHA256SUMS.txt`. License notices: `THIRD_PARTY_NOTICES.md`.
+          EOF
+          } > notes.md
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --draft \
+            --title "NAMplify ${TAG#v}" --notes-file notes.md --verify-tag
+
+  build:
+    needs: draft
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            name: macos
+          - os: windows-2022
+            name: windows
+          - os: ubuntu-22.04
+            name: linux
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    env:
+      VERSION: ${{ needs.draft.outputs.version }}
+      T3K: ${{ vars.NAMPLIFY_T3K_CLIENT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+          persist-credentials: false
+
+      - name: Cache third-party sources
+        uses: actions/cache@v5
+        with:
+          path: third_party
+          key: third-party-${{ hashFiles('tools/fetch-third-party.sh') }}
+      - name: Fetch third-party sources
+        shell: bash
+        run: tools/fetch-third-party.sh
+
+      # macOS
+      - name: Build, test and package (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew list ninja >/dev/null 2>&1 || brew install ninja
+          cmake -B build -G Ninja -DNAMPLIFY_T3K_CLIENT_ID="$T3K"
+          tools/make-release.sh
+          mkdir -p out
+          cp release/NAMplify-*-macOS.pkg "out/NAMplify_${VERSION}_macos_universal.pkg"
+
+      # Windows
+      - name: WebView2 SDK, ASIO SDK, WebView2 bootstrapper, Inno Setup
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          nuget install Microsoft.Web.WebView2 -OutputDirectory "$env:GITHUB_WORKSPACE\nuget" -ExcludeVersion
+          $zip = "$env:RUNNER_TEMP\asiosdk.zip"
+          Invoke-WebRequest -Uri "https://www.steinberg.net/asiosdk" -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "$env:RUNNER_TEMP\asio" -Force
+          $sdk = (Get-ChildItem "$env:RUNNER_TEMP\asio" -Directory | Select-Object -First 1).FullName
+          if (-not (Test-Path "$sdk\common\iasiodrv.h")) { throw "ASIO SDK not found in $sdk" }
+          "ASIO_SDK=$sdk" >> $env:GITHUB_ENV
+          New-Item -ItemType Directory -Force -Path installer\redist | Out-Null
+          Invoke-WebRequest -Uri "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "installer\redist\MicrosoftEdgeWebview2Setup.exe"
+          choco install innosetup -y --no-progress
+      - name: MSVC environment
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * `
+                  -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vs) { throw "No Visual Studio installation found." }
+          cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" && set" | ForEach-Object {
+            if ($_ -match '^([^=]+)=(.*)$') { "$($matches[1])=$($matches[2])" >> $env:GITHUB_ENV }
+          }
+      - name: Build, test and package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DNAMPLIFY_BUILD_PLUGIN=ON `
+            -DNAMPLIFY_ASIO_SDK="$env:ASIO_SDK" `
+            -DNAMPLIFY_WEBVIEW2_DIR="$env:GITHUB_WORKSPACE\nuget\Microsoft.Web.WebView2" `
+            -DNAMPLIFY_T3K_CLIENT_ID="$env:T3K"
+          cmake --build build
+          .\build\tests\namplify_tests.exe
+          if ($LASTEXITCODE -ne 0) { throw "Tests failed" }
+          $v = (Select-String -Path CMakeLists.txt -Pattern 'project *\(NAMplify VERSION ([0-9.]+)').Matches[0].Groups[1].Value
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DVersion=$v" "installer\NAMplify.iss"
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed" }
+          New-Item -ItemType Directory -Force -Path out | Out-Null
+          Copy-Item "release\NAMplify-$v-Windows-x64.exe" "out\NAMplify_$($env:VERSION)_windows_x64_setup.exe"
+
+      # Linux. Built on Ubuntu 22.04 so the binary runs on any distribution with
+      # at least that glibc.
+      - name: Build, test and package (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends \
+            build-essential cmake ninja-build pkg-config \
+            libasound2-dev libjack-jackd2-dev libcurl4-openssl-dev \
+            libfreetype-dev libfontconfig1-dev \
+            libx11-dev libxcomposite-dev libxcursor-dev libxext-dev \
+            libxinerama-dev libxrandr-dev libxrender-dev \
+            libwebkit2gtk-4.1-dev libgtk-3-dev
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DNAMPLIFY_BUILD_PLUGIN=ON \
+            -DNAMPLIFY_T3K_CLIENT_ID="$T3K"
+          cmake --build build
+          ./build/tests/namplify_tests
+          name="NAMplify_${VERSION}_linux_x64"
+          art=build/plugin/NAMplify_artefacts/Release
+          mkdir -p "out/$name"
+          cp "$art/Standalone/NAMplify" "out/$name/"
+          cp -R "$art/VST3/NAMplify.vst3" "out/$name/"
+          cp installer/linux/install.sh installer/linux/namplify.desktop "out/$name/"
+          cp assets/icon/mac_128.png "out/$name/namplify.png"
+          cp LICENSE THIRD_PARTY_NOTICES.md "out/$name/"
+          chmod +x "out/$name/install.sh" "out/$name/NAMplify"
+          tar -C out -czf "out/$name.tar.gz" "$name"
+          rm -rf "out/$name"
+
+      - name: Verify installer payload
+        shell: bash
+        run: node tools/verify-release.mjs --artifacts out
+
+      - name: Upload to draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$TAG" out/NAMplify_* --repo "$GITHUB_REPOSITORY" --clobber
+
+  checksums:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ env.TAG }}
+          persist-credentials: false
+      - name: Add SHA256SUMS.txt and license notices to the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # Outside the checkout: the repository has an assets/ folder of its own.
+          dir="$RUNNER_TEMP/release-assets"
+          mkdir -p "$dir" && cd "$dir"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern 'NAMplify_*' --clobber
+          sha256sum NAMplify_* > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          cp "$GITHUB_WORKSPACE/THIRD_PARTY_NOTICES.md" .
+          gh release upload "$TAG" SHA256SUMS.txt THIRD_PARTY_NOTICES.md --repo "$GITHUB_REPOSITORY" --clobber

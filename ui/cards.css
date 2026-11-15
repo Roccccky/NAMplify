@@ -1,0 +1,168 @@
+/* Werkzeugkarten: Looper und Recorder. Kopf, Zeilen und Reglergruppen der
+   Slot-Karten stehen in rig.css. */
+
+/* Looper-Karte */
+.looper-tracks {
+  /* Bezug für das Längenschild, das breiter als eine Spur ist. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Eine Spur ist eine Zeile: Taster, Regler, lange Bahn. */
+.looper-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  height: 44px;
+}
+
+/* Wellenband: hochkant gerundete flache Mulde, die Bahn nimmt die Spurfarbe an,
+   sobald etwas darin liegt. Looper und Recorder benutzen dasselbe Bauteil
+   (.wave-well). */
+.wave-well {
+  position: relative;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  border-radius: calc(9px * var(--scale));
+  overflow: hidden;
+}
+/* Die Farbfläche liegt unter der Welle: das Canvas wird nach dem Pseudo-Element
+   gezeichnet. */
+.wave-well::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--track-colour, var(--ink-dim));
+  opacity: 0;
+  transition: opacity .18s var(--ease), background .18s var(--ease);
+}
+.wave-well canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.wave-well[data-state="empty"]::before     { background: #000; opacity: .35; }
+.wave-well[data-state="recording"]::before { opacity: .30; }
+.wave-well[data-state="playing"]::before   { opacity: .22; }
+.wave-well[data-state="stopped"]::before   { opacity: .06; }
+
+/* Aufnahme: die Bahn pulsiert im Takt der Schleife, der Rahmen glüht mit.
+   Wiedergabe: pulsiert ohne Glühen. Rot nur bei Aufnahme. */
+@keyframes waveBreathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(.98); } }
+@keyframes waveFrame {
+  0%, 100% { box-shadow: var(--well-shadow),
+                         inset 0 0 0 calc(2px * var(--scale)) var(--track-colour),
+                         0 0 calc(3px * var(--scale))
+                           color-mix(in srgb, var(--track-colour) 30%, transparent); }
+  50%      { box-shadow: var(--well-shadow),
+                         inset 0 0 0 calc(2px * var(--scale)) var(--track-colour),
+                         0 0 calc(9px * var(--scale))
+                           color-mix(in srgb, var(--track-colour) 75%, transparent); }
+}
+.wave-well[data-state="recording"] {
+  animation: waveBreathe 1.18s ease-in-out infinite,
+             waveFrame   1.18s ease-in-out infinite;
+}
+.wave-well[data-state="playing"] {
+  animation: waveBreathe 1.18s ease-in-out infinite;
+}
+
+.looper-wave {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+  cursor: pointer;
+  touch-action: none;
+}
+/* Liegend gerundet wie eine Mulde. */
+.looper-wave.wave-well, .recorder-wave.wave-well { border-radius: 7px; }
+
+/* Anfasser links (Anfang) und rechts (Ende). */
+.looper-handle {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 8px;
+  cursor: ew-resize;
+  z-index: 3;
+}
+.looper-handle::after {
+  content: "";
+  position: absolute;
+  top: 15%; bottom: 15%; left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 999px;
+  background: var(--track-colour, var(--ink-dim));
+  box-shadow: 0 0 5px rgba(0,0,0,.7);
+}
+
+.looper-length {
+  position: absolute;
+  right: calc(3px * var(--scale));
+  /* Länge in einer Zeile. */
+  white-space: nowrap;
+  font-size: calc(8px * var(--scale));
+  font-family: var(--font-mono);
+  color: var(--ink-dim);
+  background: rgba(0,0,0,.7);
+  padding: 1px 4px;
+  border-radius: 3px;
+  z-index: 4;
+  pointer-events: none;
+}
+.looper-length[data-whole="true"] { color: var(--ok); font-weight: 600; }
+
+/* Recorder-Karte */
+/* Liegend wie eine Looper-Spur: Taster, lange Bahn, die beiden Pegel. */
+.recorder-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+.recorder-foot { flex: none; display: grid; place-items: center; }
+.recorder-wave {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+}
+.recorder-meters { align-self: stretch; }
+
+/* Speichern über der Welle: liegt ein Take, erscheint beim Überfahren ein
+   Speicherzeichen über der ganzen Welle, die Welle wird grau. Während der
+   Aufnahme nicht. */
+.recorder-save {
+  position: absolute;
+  inset: 0;
+  display: none;
+  place-items: center;
+  border-radius: inherit;
+  background: rgba(0,0,0,.55);
+  color: var(--ink);
+  z-index: 3;
+  cursor: pointer;
+}
+.recorder-wave[data-saveable="true"]:hover .recorder-save { display: grid; }
+.recorder-save:hover { background: rgba(0,0,0,.72); }
+.recorder-save svg { width: calc(18px * var(--scale)); height: calc(18px * var(--scale)); }
+
+.recorder-meters { display: flex; gap: calc(2px * var(--scale)); }
+.recorder-meter {
+  position: relative;
+  width: calc(3.5px * var(--scale));
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  border-radius: calc(2px * var(--scale));
+  overflow: hidden;
+}
+.recorder-meter-fill {
+  position: absolute;
+  inset: 0;
+  /* Wie beim Pegel oben: der Verlauf sitzt an der Bahn, nicht am Ausschlag. */
+  background: var(--meter-scale-up);
+  clip-path: inset(calc((1 - var(--v, 0)) * 100%) 0 0 0);
+}
+

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>NAMplify</title>
+
+<!-- Leeres Inline-Icon, damit der Browser in der Demo nicht /favicon.ico
+     anfragt und die Konsole mit einem 404 füllt. -->
+<link rel="icon" href="data:,">
+
+
+<!-- Die UI wird mit dem Programm ausgeliefert: kein CDN, keine Webfonts, keine
+     Fremdbibliotheken. Symbole sind gezeichnete Pfade (icons.js), die Wortmarke
+     ist Systemschrift (Monospace).
+
+     In einem normalen Browser läuft dieselbe Datei mit Demo-Daten (mock.js). -->
+
+<link rel="stylesheet" href="handschrift.css">
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="layout.css">
+<link rel="stylesheet" href="rig.css">
+<link rel="stylesheet" href="controls.css">
+<link rel="stylesheet" href="cards.css">
+<link rel="stylesheet" href="drawer.css">
+<link rel="stylesheet" href="overlays.css">
+</head>
+
+<body>
+
+<div id="root" class="root" data-zoom="2">
+
+  <!-- Kopfleiste -->
+  <!-- Links die Wortmarke, mittig das geladene Preset, rechts die Symbole. Die
+       Pegel stehen unten am Schreibtisch. -->
+  <header class="header">
+    <div class="header-left">
+      <div class="brand" id="brand" role="img" aria-label="NAMplify"><span class="brand-word">NAMPLIFY</span></div>
+      <!-- Räume: RIG ist das Brett, TOOLS Looper und Co. -->
+      <nav class="rooms" id="rooms" aria-label="Rooms">
+        <button data-room="rig">RIG</button>
+        <!-- Looper, Beat Machine und Recorder sind noch nicht fertig. Der
+             Reiter ist sichtbar, lässt sich aber nicht öffnen. -->
+        <button data-room="tools" disabled title="Looper, beat machine and recorder: coming soon">TOOLS<span class="room-soon">SOON</span></button>
+      </nav>
+    </div>
+    <div class="header-center" id="preset-display"></div>
+    <div class="header-right">
+      <button class="icon-button" id="btn-tuner" title="Tuner" aria-label="Tuner"></button>
+      <button class="icon-button" id="btn-settings" title="Settings" aria-label="Settings"></button>
+    </div>
+  </header>
+
+  <!-- Stumm-Streifen -->
+  <div class="mute-banner" id="mute-banner" hidden>
+    <span class="mute-banner-text">Muted &mdash; nothing is coming out. The tuner still hears you.</span>
+    <button class="mute-banner-button" id="btn-go-live">GO LIVE</button>
+  </div>
+
+  <!-- Arbeitsfläche: links die Presets, in der Mitte oben die Kette (eine oder
+       zwei Spuren), darunter die Karte des gewählten Slots, unten die
+       Fußschalter. Rechts der Browser (TONE3000 und eigene Bibliothek), immer
+       offen. -->
+  <div class="workspace">
+    <div class="side-col">
+      <aside class="panel presets-panel" id="presets-panel" aria-label="Presets"></aside>
+      <!-- Kleines Stimmgerät, so hoch wie die Fußschalter daneben, damit die
+           Unterkanten eine Linie bilden. -->
+      <section class="panel mini-tuner-card" id="mini-tuner-card" aria-label="Tuner"></section>
+    </div>
+
+    <main class="center">
+      <section class="panel chain-panel" id="chain-panel" aria-label="Signal chain"></section>
+      <section class="panel slot-card" id="slot-card" aria-label="Selected slot"></section>
+      <section class="panel foot-panel" id="foot-panel" aria-label="MIDI footswitches"></section>
+    </main>
+
+    <aside class="panel drawer" id="drawer" aria-label="Browser">
+      <div class="drawer-body" id="drawer-body"></div>
+    </aside>
+  </div>
+
+  <!-- Raum TOOLS: alle Werkzeuge untereinander, jedes als Streifen (tools.js). -->
+  <div class="tools-room" id="tools-room" hidden>
+    <main class="center">
+      <div class="tool-zone" id="tool-zone" aria-label="Tools"></div>
+    </main>
+  </div>
+
+
+</div>
+
+<!-- Overlays -->
+<div class="overlay" id="overlay-tuner" hidden></div>
+<div class="overlay" id="overlay-settings" hidden></div>
+<div class="overlay" id="overlay-dialog" hidden></div>
+<div class="overlay-menu" id="overlay-menu" hidden></div>
+
+<div class="toast-slot" id="toast-slot" aria-live="polite"></div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

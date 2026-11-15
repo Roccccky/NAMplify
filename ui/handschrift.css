@@ -1,0 +1,71 @@
+/* Gemeinsame Grundwerte für NAMplify und RUSHplify: Flächen, Schrift, Farben,
+   Bewegung.
+
+   Nur Grundwerte, keine Klassen und keine Bauteilgrößen. Was welche Fläche
+   bekommt, steht in theme.css. */
+
+:root {
+  /* Blech: sechs Stufen vom tiefsten Grund bis zur Kante */
+  --hs-m0: #0d0d0d;
+  --hs-m1: #121212;   /* Fenstergrund */
+  --hs-m2: #1a1a1a;
+  --hs-m3: #1e1e1e;
+  --hs-m4: #2a2a2a;
+  --hs-m5: #333333;
+
+  /* Flächen */
+  --hs-shell-top: #232323;
+  --hs-shell-bot: #1b1b1b;
+  --hs-zone-edge: #262626;
+  --hs-zone-gap: 8px;
+  --hs-zone-radius: 10px;
+  --hs-edge: #2f2f2f;
+  --hs-edge-off: #272727;
+
+  /* Schrift: vier Helligkeiten, eine Familie */
+  --hs-ink: #e8e8e8;
+  --hs-dim: #a3a3a3;
+  --hs-far: #858585;
+  --hs-off: #4c4c4c;
+  --hs-font: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  /* Rot für Hervorhebungen */
+  --hs-hl: #d4453c;
+  --hs-hl-deep: #a8342d;
+  --hs-hl-ink: #ec6a61;
+  --hs-hl-fill: linear-gradient(180deg, #d4453c, #a8342d);
+
+  /* Türkis nur für Auswahl und Fokus, nie als Fläche */
+  --hs-acc: #4fc8d2;
+
+  --hs-ok: #4caf6d;
+  --hs-warn: #d9a520;
+
+  /* Mulde (eingelassen) und Erhabenes */
+  --hs-well-top: #141414;
+  --hs-well-bot: #1d1d1d;
+  --hs-well-lip: #414141;
+  --hs-raise-top: #2f2f2f;
+  --hs-raise-bot: #242424;
+  --hs-raise-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 -1px 0 rgba(0,0,0,.4) inset, 0 1px 3px rgba(0,0,0,.4);
+
+  /* Glas: Anzeigen, Bildschirmzeilen */
+  --hs-screen-top: #050708;
+  --hs-screen-bot: #0d1012;
+  --hs-screen-edge: #3c4145;
+  --hs-screen-edge-t: #23272a;
+  --hs-screen-text: #cbd1d4;
+  --hs-screen-dim: #6a6e71;
+  --hs-screen-arrow: #8e9296;
+
+  /* Linien und Auflagen */
+  --hs-switch-edge: #3b3b3b;
+  --hs-stroke: #333333;
+  --hs-stroke-bright: #4a4a4a;
+  --hs-tint-1: rgba(255,255,255,.04);
+  --hs-tint-2: rgba(255,255,255,.07);
+  --hs-tint-3: rgba(255,255,255,.11);
+
+  /* Bewegung */
+  --hs-ease: cubic-bezier(.2, .8, .25, 1);
+}

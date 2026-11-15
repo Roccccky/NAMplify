@@ -1,0 +1,594 @@
+/* Overlays: Auswahlliste, Stimmgerät, Einstellungen, Startabfrage, Toasts und
+   Rückfragen. Alle Dialoge zeichnet die UI selbst. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+}
+
+.overlay-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(6,7,9,.72);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+
+/* Stimmgerät */
+/* Dieselbe Karte wie auf dem Brett: Pedalmaß, Anzeigefeld, Statusstreifen,
+   Beschriftung, Fußschalter. */
+.tuner-card {
+  position: relative;
+  width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--shell-top), var(--shell-bottom));
+  border: calc(2px * var(--scale)) solid var(--c-gate);
+  box-shadow: 0 6px 18px rgba(0,0,0,.5);
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(10px * var(--scale));
+  --card-colour: var(--c-gate);
+}
+
+/* Anzeigefeld: ein Display für Skala, Ton und Zahl. */
+.tuner-display {
+  margin: calc(16px * var(--scale)) calc(11px * var(--scale)) 0;
+  height: calc(112px * var(--scale));
+  padding: calc(7px * var(--scale)) calc(8px * var(--scale));
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: calc(8px * var(--scale));
+  background: linear-gradient(180deg, var(--screen-top), var(--screen-bot));
+  border: 1px solid var(--screen-edge);
+  border-top-color: var(--screen-edge-t);
+  border-radius: calc(4px * var(--scale));
+}
+
+/* Skala und Stroboskop liegen übereinander in einem Feld fester Höhe, damit der
+   Kippschalter beim Umschalten nicht wandert. */
+.tuner-scale { position: relative; height: calc(33px * var(--scale)); }
+
+.tuner-scale-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: calc(6.5px * var(--scale));
+  color: var(--screen-dim);
+  margin-bottom: calc(4px * var(--scale));
+}
+
+.tuner-leds {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: calc(1.5px * var(--scale));
+  height: calc(22px * var(--scale));
+}
+
+.tuner-led {
+  position: relative;
+  width: calc(3px * var(--scale));
+  height: calc(17px * var(--scale));
+  border-radius: calc(.5px * var(--scale));
+  background: color-mix(in srgb, var(--stroke) 80%, transparent);
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+/* Die Mitte ist höher als ihre Nachbarn. */
+.tuner-led[data-centre="true"] { height: calc(22px * var(--scale)); }
+.tuner-led-glow {
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity .05s linear;
+}
+
+.tuner-note-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(8px * var(--scale));
+}
+/* Die Zeiger sind Dreiecke. Sie zeigen die Drehrichtung und leuchten erst, wenn
+   nötig. */
+.tuner-arrow {
+  width: 0; height: 0;
+  flex: 0 0 auto;
+  border-top: calc(6px * var(--scale)) solid transparent;
+  border-bottom: calc(6px * var(--scale)) solid transparent;
+  color: color-mix(in srgb, var(--stroke) 50%, transparent);
+  transition: color .1s linear;
+}
+.tuner-arrow[data-side="left"]  { border-left:  calc(9.6px * var(--scale)) solid currentColor; }
+.tuner-arrow[data-side="right"] { border-right: calc(9.6px * var(--scale)) solid currentColor; }
+.tuner-arrow[data-on="true"]   { color: var(--error); }
+.tuner-arrow[data-good="true"] { color: var(--ok); }
+
+.tuner-note {
+  font-size: calc(30px * var(--scale));
+  font-weight: 700;
+  min-width: calc(58px * var(--scale));
+  text-align: center;
+  color: var(--screen-dim);
+  font-variant-numeric: tabular-nums;
+}
+.tuner-note[data-state="some"] { color: var(--screen-text); }
+.tuner-note[data-state="good"] { color: var(--ok); }
+.tuner-note sub { font-size: .55em; color: var(--screen-dim); }
+
+.tuner-readout {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: calc(7px * var(--scale));
+  color: var(--screen-dim);
+  min-height: calc(9px * var(--scale));
+}
+
+/* Strobe: zwei Streifenbänder */
+.tuner-strobe {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: calc(4px * var(--scale));
+}
+
+.strobe-band {
+  position: relative;
+  height: calc(17px * var(--scale));
+  border-radius: calc(3px * var(--scale));
+  background-color: color-mix(in srgb, var(--screen-dim) 22%, transparent);
+  overflow: hidden;
+  opacity: .28;
+  transition: opacity .16s var(--ease);
+}
+.strobe-band[data-fine="true"] { height: calc(11px * var(--scale)); }
+.strobe-band[data-lit="true"] { opacity: 1; }
+
+/* Das Streifenmuster liegt auf einem Kind, das links und rechts über das Band
+   hinausragt und per transform wandert. Mit background-position kachelt der
+   Browser das Muster in Bandbreite, und die Fuge wird sichtbar.
+
+   --strobe-period ist die Streifenbreite längs der Verlaufsachse, --strobe-step
+   der waagerechte Weg für eine Streifenbreite. Bei 100° ist er um 1/sin(100°)
+   länger. Gleichgesetzt gäbe es bei jedem Umlauf einen Ruck. */
+.strobe-stripes {
+  --strobe-period: calc(22px * var(--scale));
+  --strobe-step: calc(var(--strobe-period) / 0.98481);
+  position: absolute;
+  top: 0; bottom: 0;
+  left: calc(-2 * var(--strobe-step));
+  right: calc(-2 * var(--strobe-step));
+  background-image: repeating-linear-gradient(100deg,
+      transparent 0,
+      color-mix(in srgb, var(--ok) 85%, transparent) calc(3px * var(--scale)),
+      color-mix(in srgb, var(--ok) 85%, transparent) calc(8px * var(--scale)),
+      transparent calc(11px * var(--scale)),
+      transparent var(--strobe-period));
+  will-change: transform;
+}
+.strobe-band[data-fine="true"] .strobe-stripes {
+  --strobe-period: calc(14px * var(--scale));
+  background-image: repeating-linear-gradient(100deg,
+      transparent 0,
+      color-mix(in srgb, var(--ok) 70%, transparent) calc(2px * var(--scale)),
+      color-mix(in srgb, var(--ok) 70%, transparent) calc(5px * var(--scale)),
+      transparent calc(7px * var(--scale)),
+      transparent var(--strobe-period));
+}
+
+/* Kippschalter LEDS ⇄ STROBE zwischen Anzeige und Beschriftung. */
+.tuner-style {
+  display: flex;
+  justify-content: center;
+  margin-top: calc(20px * var(--scale));
+  margin-bottom: calc(10px * var(--scale));
+}
+
+.tuner-foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* MUTE-Taster (leuchtend = stumm): ein kleiner runder Taster neben der Scheibe. */
+.tuner-mute {
+  width: calc(24px * var(--scale));
+  height: calc(24px * var(--scale));
+  border-radius: 50%;
+  border: calc(1.5px * var(--scale)) solid var(--switch-edge);
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  font-size: calc(6px * var(--scale));
+  font-weight: 700;
+  letter-spacing: calc(.4px * var(--scale));
+  color: var(--ink-far);
+  flex: 0 0 auto;
+}
+/* Stumm ist ein Zustand: die Taste ist gefüllt, nicht nur umrandet. */
+.tuner-mute[data-on="true"] {
+  border-color: var(--highlight-deep);
+  color: var(--highlight-fill-ink);
+  background: var(--highlight-fill);
+  box-shadow: 0 0 calc(6px * var(--scale))
+              color-mix(in srgb, var(--highlight) 55%, transparent);
+}
+
+/* Einstellungen */
+/* Links die Seiten mit Symbol, rechts eine Seite. */
+.settings-sheet {
+  position: relative;
+  display: flex;
+  width: min(920px, 92vw);
+  height: min(640px, 88vh);
+  border-radius: 10px;
+  background: var(--metal-1);
+  border: 1px solid var(--stroke);
+  box-shadow: 0 24px 64px rgba(0,0,0,.6);
+  overflow: hidden;
+}
+
+.settings-nav {
+  width: 208px;
+  flex: none;
+  padding: 16px 10px;
+  background: rgba(0,0,0,.25);
+  border-right: 1px solid var(--hairline-dark);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  letter-spacing: .13em;
+  color: var(--ink-far);
+  text-align: left;
+}
+.settings-nav-item:hover { color: var(--ink-dim); background: var(--tint-1); }
+.settings-nav-item[data-on="true"] {
+  color: var(--highlight-fill-ink);
+  background: var(--highlight-fill);
+}
+.settings-nav-item svg { width: 14px; height: 14px; flex: none; }
+
+.settings-page {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px 26px 30px;
+}
+
+.settings-title {
+  font-size: 13px;
+  letter-spacing: .18em;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.settings-intro {
+  font-size: 11.5px;
+  line-height: 1.65;
+  color: var(--ink-far);
+  margin-bottom: 18px;
+  max-width: 62ch;
+}
+
+/* Der Hinweistext steht in der Zeile, zu der er gehört. */
+.setting-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--hairline);
+}
+.setting-row:last-child { border-bottom: 0; }
+
+.setting-label { flex: 1; min-width: 0; }
+.setting-name { font-size: 12px; color: var(--ink); }
+.setting-hint {
+  font-size: 10.5px;
+  line-height: 1.55;
+  color: var(--ink-far);
+  margin-top: 3px;
+  max-width: 56ch;
+}
+.setting-control { flex: none; display: flex; align-items: center; gap: 8px; }
+
+.setting-row[data-disabled="true"] { opacity: .45; }
+.setting-row[data-disabled="true"] .setting-control { pointer-events: none; }
+
+.settings-section {
+  margin-top: 22px;
+  padding-top: 6px;
+  font-size: 9.5px;
+  letter-spacing: .2em;
+  color: var(--ink-off);
+}
+
+select {
+  font: inherit;
+  font-size: 11px;
+  color: var(--ink);
+  background: var(--well-bg);
+  border: 1px solid var(--metal-5);
+  border-radius: 4px;
+  padding: 5px 8px;
+  min-width: 150px;
+  outline: none;
+}
+
+.pill-group { display: flex; gap: 2px; background: var(--well-bg); border-radius: 5px; padding: 2px; box-shadow: var(--well-shadow); }
+.pill {
+  padding: 5px 11px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  letter-spacing: .12em;
+  color: var(--ink-far);
+}
+.pill:hover { color: var(--ink-dim); background: var(--tint-1); }
+.pill[data-on="true"] {
+  color: var(--highlight-fill-ink);
+  background: var(--highlight-fill);
+}
+
+.text-button {
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 10px;
+  letter-spacing: .13em;
+  /* Flach: kein Innenschatten, kein Schlagschatten, keine Wölbung. Die Wölbung
+     gehört Reglern und Fußschaltern. Unter dem Zeiger heller, gedrückt einen
+     Pixel tiefer. */
+  background: var(--tint-2);
+  color: var(--ink);
+  transition: background .12s var(--ease);
+}
+.text-button:hover { background: var(--tint-3); }
+.text-button:active { transform: translateY(1px); }
+.text-button[data-danger="true"]:hover { background: var(--highlight-deep); }
+
+.status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--metal-5);
+}
+.status-dot[data-on="true"] { background: var(--ok); box-shadow: 0 0 7px var(--ok); }
+
+/* Globaler EQ */
+.eq-editor { display: flex; gap: 18px; margin-top: 12px; }
+.eq-graph {
+  flex: 1;
+  position: relative;
+  height: 240px;
+  border-radius: 6px;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  overflow: hidden;
+  touch-action: none;
+}
+.eq-graph canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.eq-fields { width: 168px; flex: none; display: flex; flex-direction: column; gap: 10px; }
+.eq-field { display: flex; flex-direction: column; gap: 3px; }
+.eq-field-label { font-size: 8.5px; letter-spacing: .16em; color: var(--ink-off); }
+.eq-field-value {
+  padding: 6px 9px;
+  border-radius: 4px;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink);
+  cursor: text;
+}
+.eq-field-value[data-mode="true"] { cursor: pointer; letter-spacing: .1em; font-family: var(--font); font-size: 10.5px; }
+
+/* Startabfrage */
+/* Don't ask again in der Startabfrage. */
+.start-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  font-size: 10.5px;
+  color: var(--ink-far);
+  cursor: pointer;
+}
+.start-box {
+  width: 14px; height: 14px;
+  border-radius: 3px;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  display: grid; place-items: center;
+  color: var(--ok);
+}
+.start-box svg { width: 10px; height: 10px; opacity: 0; }
+.start-check[data-on="true"] .start-box svg { opacity: 1; }
+
+/* Rückfrage, Dialog */
+.dialog {
+  position: relative;
+  width: 380px;
+  padding: 24px 24px 18px;
+  border-radius: 10px;
+  background: var(--panel-bg);
+  box-shadow: var(--panel-shadow);
+}
+.dialog-title { font-size: 12px; letter-spacing: .18em; color: var(--ink); margin-bottom: 10px; }
+.dialog-text { font-size: 12px; line-height: 1.65; color: var(--ink-dim); }
+.dialog-input { width: 100%; margin-top: 14px; }
+/* Feld mit Zauberstab für Namensvorschläge. */
+.dialog-field { position: relative; margin-top: 14px; }
+.dialog-field .dialog-input { margin-top: 0; padding-right: 34px; }
+.dialog-suggest {
+  position: absolute; top: 50%; right: 4px;
+  width: 26px; height: 26px; margin-top: -13px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+  color: var(--ink-far);
+}
+.dialog-suggest:hover { color: var(--ink); }
+.dialog-suggest svg { width: 14px; height: 14px; }
+.dialog-buttons { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.dialog-note {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  font-size: 10.5px;
+  color: var(--ink-far);
+}
+
+/* Toast */
+/* Kurzer Streifen ohne Knopf, verschwindet von selbst. Eine neue Meldung
+   ersetzt die alte. */
+.toast-slot {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 200;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 9px 18px;
+  border-radius: 6px;
+  background: var(--panel-bg);
+  box-shadow: 0 8px 24px rgba(0,0,0,.6), inset 0 1px 0 var(--panel-edge);
+  font-size: 11.5px;
+  color: var(--ink);
+  letter-spacing: .02em;
+  white-space: nowrap;
+  animation: toastIn .18s var(--ease);
+}
+.toast[data-kind="warn"]  { border-left: 3px solid var(--warn); }
+.toast[data-kind="error"] { border-left: 3px solid var(--error); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(8px); } }
+
+/* Kontextmenü */
+.overlay-menu {
+  position: fixed;
+  z-index: 300;
+  min-width: 190px;
+  padding: 5px;
+  border-radius: 7px;
+  background: var(--panel-bg);
+  box-shadow: 0 14px 34px rgba(0,0,0,.7), inset 0 1px 0 var(--panel-edge);
+  /* Lange Listen (Modelle, Presets eines Captures) scrollen in sich. */
+  max-height: min(440px, calc(100vh - 16px));
+  overflow-y: auto;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 11px;
+  border-radius: 5px;
+  font-size: 11.5px;
+  color: var(--ink-dim);
+  text-align: left;
+}
+.menu-item:hover { color: var(--ink); background: var(--tint-2); }
+.menu-item svg { width: 13px; height: 13px; flex: none; }
+
+.menu-item-mark { width: 13px; flex: none; color: var(--ok); }
+.menu-item[data-current="true"] { color: var(--ink); background: var(--tint-1); }
+.menu-item-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Bildchen vor dem Namen: Gehäuse des Typs oder Bild des Captures, immer gleich
+   groß. */
+.menu-item-picture {
+  width: 28px; height: 28px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 4px;
+  background: var(--metal-0) center / cover no-repeat;
+}
+.menu-item-picture svg { width: 28px; height: 28px; }
+.menu-item:has(.menu-item-picture) { padding-top: 5px; padding-bottom: 5px; }
+
+.menu-heading {
+  padding: 9px 11px 5px;
+  font-size: 9px; font-weight: 700; letter-spacing: .16em;
+  color: var(--ink-off);
+}
+.menu-item-trash {
+  margin-left: auto;
+  opacity: 0;
+  color: var(--ink-off);
+  width: 22px; height: 22px;
+  display: grid; place-items: center;
+  border-radius: 4px;
+}
+.menu-item:hover .menu-item-trash { opacity: 1; }
+.menu-item-trash:hover { color: #fff; background: var(--highlight-deep); }
+
+.menu-sep { height: 1px; margin: 5px 4px; background: var(--hairline); }
+.menu-empty { padding: 12px; text-align: center; font-size: 11px; color: var(--ink-off); }
+.menu-input-row { display: flex; gap: 6px; padding: 6px; }
+.menu-input-row input { flex: 1; }
+
+/* In der Mitte: Stimmgerät und Einstellungen liegen genau über der Mitte, Lage
+   und Größe setzt app.js. Kein Schleier, Presets und Browser daneben werden
+   grau. */
+.overlay.in-centre { inset: auto; place-items: stretch; z-index: 90; }
+.overlay.in-centre .overlay-scrim { display: none; }
+
+body[data-focus="centre"] .workspace > aside,
+body[data-focus="centre"] .side-col > aside,
+body[data-focus="centre"] #preset-display,
+body[data-focus="centre"] #rooms {
+  opacity: .28;
+  filter: grayscale(1);
+  cursor: pointer;
+  transition: opacity .18s var(--ease), filter .18s var(--ease);
+}
+body[data-focus="centre"] .workspace > aside *,
+body[data-focus="centre"] .side-col > aside * { pointer-events: none; }
+
+/* Das große Stimmgerät: dieselbe Karte mit größerem --scale. */
+.overlay.in-centre .tuner-card {
+  --scale: 2.3;
+  width: 100%;
+  height: 100%;
+  border-width: 1px;
+  border-color: var(--zone-edge);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px var(--zone-edge);
+  justify-content: center;
+  padding: 0 0 24px;
+}
+.overlay.in-centre .tuner-display { width: min(760px, calc(100% - 64px)); margin: 0 auto; }
+.overlay.in-centre .tuner-leds { gap: 8px; padding: 0 12px; }
+.overlay.in-centre .tuner-led { flex: 1 1 0; width: auto; max-width: 22px; }
+/* Unter der Anzeige nur die Bedienung (LEDS/STROBE, Schließen, MUTE) in
+   normaler Größe. Streifen und Beschriftung gehören zur Pedalkarte. */
+.overlay.in-centre .tuner-style,
+.overlay.in-centre .tuner-foot { --scale: 1.3; margin-top: 28px; margin-bottom: 0; }
+.overlay.in-centre .tuner-foot .card-stripe,
+.overlay.in-centre .tuner-foot .card-legend { display: none; }
+
+/* Die Einstellungen füllen die Mitte als eine Fläche. */
+.overlay.in-centre .settings-sheet {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(180deg, var(--shell-top), var(--shell-bottom));
+  box-shadow: inset 0 0 0 1px var(--zone-edge);
+}

@@ -1,0 +1,78 @@
+name: NAMplify quality gates
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Repository hygiene, documentation links and versions
+        run: |
+          node tools/verify-repository.mjs
+          node tools/verify-release.mjs
+
+  # The engine is checked on both CPU families: the vector units sum in a
+  # different order on x86 and arm64.
+  engine:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Cache third-party sources
+        uses: actions/cache@v5
+        with:
+          path: third_party
+          key: third-party-${{ hashFiles('tools/fetch-third-party.sh') }}
+      - name: Fetch third-party sources
+        run: tools/fetch-third-party.sh
+      - name: Build tools
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then sudo apt-get update -q && sudo apt-get install -y -q ninja-build; fi
+          if [ "$RUNNER_OS" = "macOS" ]; then brew list ninja >/dev/null 2>&1 || brew install ninja; fi
+      - name: Engine tests
+        run: |
+          cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DNAMPLIFY_BUILD_PLUGIN=OFF
+          cmake --build build
+          ./build/tests/namplify_tests
+
+  interface:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Browser journeys through the demo
+        run: node tools/ui/e2e.mjs

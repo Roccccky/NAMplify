@@ -1,0 +1,487 @@
+/* Bedienelemente: Drehregler, Fader, Kippschalter, Fußschalter, Displays. Jedes
+   Bauteil gibt es hier genau einmal. */
+
+/* Drehregler */
+.knob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Abstand um Ring und Beschriftung. */
+  gap: calc(var(--knob-cap-gap) - var(--knob-cap-h) + var(--knob-cap-pt));
+  touch-action: none;
+}
+
+.knob-dial {
+  position: relative;
+  width: var(--knob);
+  height: var(--knob);
+  cursor: ns-resize;
+}
+.knob[data-small="true"] .knob-dial { width: var(--knob-sm); height: var(--knob-sm); }
+
+.knob-dial svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* Flacher Knopf ohne Kappe: nur der Ring und ein kurzer Zeigerstrich am Rand.
+   Das Kappenelement bleibt im DOM, ist aber unsichtbar. */
+.knob-cap {
+  fill: transparent;
+  stroke: none;
+}
+
+.knob-ring-bg { stroke: var(--stroke, #333); }
+.knob-detent { stroke: var(--ink-off); }
+.knob-ring-fg { stroke: var(--knob-colour, var(--ink-dim)); transition: stroke .15s var(--ease); }
+.knob-pointer { stroke: var(--ink); stroke-linecap: round; }
+
+.knob[data-off="true"] .knob-ring-fg { stroke: var(--stroke, #333); }
+.knob[data-off="true"] .knob-pointer { stroke: var(--stroke-bright); }
+
+.knob[data-disabled="true"] { opacity: .38; pointer-events: none; }
+
+/* Überfahren oder Anfassen zeigt kurz den Wert statt der Beschriftung. */
+/* Die Kappe ist ein Grid: Name und Wert liegen in derselben Zelle (grid-area:
+   1/1) und blenden übereinander. Lange Namen ragen mittig über den Ring, ohne
+   die Nachbarn zu verschieben. */
+.knob-caption {
+  display: grid;
+  place-items: center;
+  height: var(--knob-cap-h);
+  width: var(--knob-ring);
+  font-size: var(--knob-cap-pt);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-align: center;
+}
+.knob-caption > span {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+  transition: opacity .12s var(--ease);
+}
+.knob-name  { color: var(--ink-far); }
+.knob-value { color: var(--ink); font-family: var(--font-mono); }
+
+.knob[data-showvalue="false"] .knob-value { opacity: 0; }
+.knob[data-showvalue="false"] .knob-name  { opacity: 1; }
+.knob[data-showvalue="true"]  .knob-value { opacity: 1; }
+.knob[data-showvalue="true"]  .knob-name  { opacity: 0; }
+
+.knob[data-learning="true"] .knob-dial::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 2px dashed var(--highlight);
+  border-radius: 50%;
+  animation: learnPulse 1s ease-in-out infinite;
+}
+@keyframes learnPulse { 50% { opacity: .35; } }
+
+/* Fader */
+/* Nullstellung in der Mitte, der Balken wächst von dort nach oben oder unten.
+   Sieben Fader müssen in die Kartenbreite passen: schmale Bahn, flache Kappe. */
+.fader-bank {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: calc(3px * var(--scale));
+  flex: 1;
+  min-height: 0;
+  padding: calc(4px * var(--scale)) 0 calc(2px * var(--scale));
+}
+
+.fader {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc(13px * var(--scale));
+  touch-action: none;
+}
+
+.fader-track {
+  position: relative;
+  flex: 1;
+  width: calc(5px * var(--scale));
+  min-height: calc(34px * var(--scale));
+  margin: 0 auto;
+  border-radius: calc(3px * var(--scale));
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  cursor: ns-resize;
+}
+
+/* Die Nullmarke sitzt in jeder Bahn, nicht als eine Linie quer über alle. */
+.fader-mid {
+  position: absolute;
+  left: calc(-2px * var(--scale)); right: calc(-2px * var(--scale));
+  top: 50%;
+  height: 1px;
+  background: var(--tint-3);
+  pointer-events: none;
+}
+
+.fader-fill {
+  position: absolute;
+  left: 0; right: 0;
+  background: var(--knob-colour, var(--ink-dim));
+  border-radius: calc(3px * var(--scale));
+  opacity: .85;
+}
+
+.fader-cap {
+  position: absolute;
+  left: calc(-3px * var(--scale)); right: calc(-3px * var(--scale));
+  bottom: 0;
+  height: calc(7px * var(--scale));
+  transform: translateY(50%);
+  border-radius: calc(2px * var(--scale));
+  border: calc(1px * var(--scale)) solid var(--switch-edge);
+  box-sizing: border-box;
+  background: var(--ink-dim);
+}
+
+/* Name und Wert an derselben Stelle unter der Bahn, wie unter einem Regler. */
+.fader-label, .fader-value {
+  margin-top: calc(3px * var(--scale));
+  font-size: calc(5.5px * var(--scale));
+  font-weight: 700;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  transition: opacity .12s var(--ease);
+}
+.fader-label { color: var(--ink-far); }
+.fader-value {
+  position: absolute;
+  left: 50%; bottom: 0;
+  transform: translateX(-50%);
+  color: var(--knob-colour, var(--ink-dim));
+  opacity: 0;
+}
+.fader[data-showvalue="true"] .fader-value { opacity: 1; }
+.fader[data-showvalue="true"] .fader-label { opacity: 0; }
+
+/* Schaltschienen */
+/* NORM/RAW, Kippschalter und Stufenschalter sind ein Bauteil in drei Längen:
+   eine flache Mulde mit einem Knopf in der Kartenfarbe. Schiene, Knopf und
+   Schriftgröße stehen hier, darunter nur die Längen. */
+.norm-rail, .toggle-rail, .selector-rail {
+  position: relative;
+  height: var(--switch-rail-h);
+  border-radius: 999px;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+  flex: none;
+}
+
+.norm-dot, .toggle-knob, .selector-dot {
+  position: absolute;
+  top: 50%;
+  width: var(--switch-dot);
+  height: var(--switch-dot);
+  margin-top: calc(var(--switch-dot) / -2);
+  border-radius: 50%;
+  background: var(--knob-colour, var(--ink-dim));
+  transition: transform .14s var(--ease), left .16s var(--ease),
+              background .14s var(--ease);
+}
+
+/* Der Knopf ruht am linken Anschlag, mit gleichem Abstand zu allen Kanten. */
+.norm-dot, .toggle-knob {
+  left: calc((var(--switch-rail-h) - var(--switch-dot)) / 2);
+}
+
+/* Die Beschriftung ist graviert (Lichtkante unten) und leuchtet in der
+   Kartenfarbe, wenn sie gilt. Sonst grau. */
+.toggle-text, .selector-term {
+  font-size: var(--switch-font);
+  letter-spacing: .12em;
+  color: var(--ink-off);
+  text-shadow: 0 1px 0 rgba(255,255,255,.07);
+  transition: color .14s var(--ease), text-shadow .14s var(--ease);
+}
+
+/* Kippschalter */
+/* Beschriftung links, kurze Schiene mit Knopf, Beschriftung rechts. Die ganze
+   Zeile schaltet. */
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: calc(7px * var(--scale));
+  cursor: pointer;
+  padding: calc(3px * var(--scale)) calc(4px * var(--scale));
+  border-radius: 4px;
+}
+/* Kein Hover-Zustand an Schaltern, die Hardware nachbilden. Gilt auch für den
+   Stufenschalter und die Pfeile am Display. cursor: pointer zeigt, dass sie
+   klickbar sind. */
+
+.toggle-rail { width: calc(30px * var(--scale)); }
+
+.toggle[data-on="true"] .toggle-knob {
+  transform: translateX(calc(30px * var(--scale) - var(--switch-rail-h)));
+}
+
+.toggle[data-on="false"] .toggle-text-a,
+.toggle[data-on="true"]  .toggle-text-b,
+.selector-term[data-on="true"] {
+  color: var(--card-colour, var(--ink));
+  text-shadow: 0 1px 0 rgba(255,255,255,.07),
+               0 0 calc(6px * var(--scale))
+                 color-mix(in srgb, var(--card-colour, var(--ink)) 55%, transparent);
+}
+
+/* NORM/RAW als Reglerspalte: Schiene in Ringbreite, das Wort darunter wie eine
+   Reglerbeschriftung. */
+.norm-knob {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--knob-cap-gap) - var(--knob-cap-h) + var(--knob-cap-pt));
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+/* Das Feld ist so hoch wie ein Reglerring, die Schiene liegt mittig. So steht
+   die Beschriftung auf einer Linie mit GAIN und VOL. */
+.norm-dial {
+  width: var(--knob-ring);
+  height: var(--knob);
+  display: grid;
+  place-items: center;
+}
+.norm-rail { width: var(--knob-ring); }
+.norm-knob[data-on="true"] .norm-dot {
+  transform: translateX(calc(var(--knob-ring) - var(--switch-rail-h)));
+}
+/* Die Beschriftung nutzt .knob-caption. Der Zustand steht im Wort selbst (NORM
+   oder RAW). */
+
+/* Stufenschalter */
+/* Begriffe oben, darunter eine Rastschiene mit Knopf. Begriff und Raste sind
+   klickbar. Er sitzt unten am Kartenboden, damit alles Umschaltbare auf einer
+   Linie steht. */
+.selector { display: flex; flex-direction: column; gap: calc(4px * var(--scale)); width: 100%; }
+
+.selector-terms {
+  display: flex;
+  justify-content: space-between;
+  gap: calc(3px * var(--scale));
+}
+
+.selector-term {
+  flex: 1;
+  text-align: center;
+  letter-spacing: .1em;
+  cursor: pointer;
+  padding: calc(2px * var(--scale)) 0;
+}
+
+
+.selector-rail { cursor: pointer; }
+
+/* Die Raste ist ein Strich, ein Punkt sähe aus wie ein zweiter Knopf. */
+.selector-detent {
+  position: absolute;
+  top: 50%;
+  width: 1px;
+  height: calc(3px * var(--scale));
+  transform: translate(-50%, -50%);
+  background: var(--tint-3);
+}
+
+/* Der Knopf liegt über den Rasten, die nach ihm im DOM stehen. */
+.selector-dot { margin-left: calc(var(--switch-dot) / -2); z-index: 1; }
+
+/* Display */
+/* Zwei Zeilen mit je einem Pfeilpaar: oben die Bank (hell), unten das Preset
+   (gedämpft). */
+/* Anzeigefeld auf der Karte: dunkle Scheibe mit heller Kante, am unteren Ende
+   des Kartenkörpers, Höhe --screen-h. */
+.display {
+  height: var(--screen-h);
+  padding: var(--screen-pad-y) var(--screen-pad-x);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--row-gap);
+  background: linear-gradient(180deg, var(--screen-top), var(--screen-bot));
+  border: 1px solid var(--screen-edge);
+  border-top-color: var(--screen-edge-t);
+  border-radius: calc(4px * var(--scale));
+  /* Kein Schatten nach außen, das Display ist eingelassen. Helle Kante oben und
+     dunkle Fläche reichen. */
+}
+
+/* Jede Zeile hat eigene Pfeile links und rechts vom Namen. */
+.display-row {
+  display: flex;
+  align-items: center;
+  gap: calc(5px * var(--scale));
+}
+
+.display-text {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  /* Lange Namen werden abgeschnitten, nicht verkleinert, damit die Karte nicht
+     breiter wird. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.display-bank .display-text {
+  font-size: var(--bank-font);
+  color: var(--screen-text);
+}
+.display-preset .display-text {
+  font-size: var(--preset-font);
+  color: var(--screen-dim);
+}
+
+.display-arrow {
+  flex: 0 0 auto;
+  width: calc(6px * var(--scale));
+  height: calc(10px * var(--scale));
+  cursor: pointer;
+}
+.display-arrow rect { fill: var(--screen-arrow); }
+.display-preset .display-arrow rect { fill: var(--screen-dim); }
+.display-arrow.right { transform: scaleX(-1); }
+
+/* Fußschalter */
+/* Die Reihe hat eine feste Höhe, unabhängig von der Scheibengröße. Sonst säßen
+   Statusstreifen und Beschriftung der Looper-Karte höher als bei den anderen. */
+.footswitch-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(10px * var(--scale));
+  height: var(--switch-row-h);
+  margin-bottom: calc(2px * var(--scale));
+}
+
+/*
+ * Flache Farbscheibe: ein Ring mit dunkler Fläche, die sich eingeschaltet ganz
+ * in der Blockfarbe füllt. Das Zeichen (Aufnahme/Play) sitzt mittig darauf.
+ */
+.footswitch {
+  /* Auf gerade ganze Pixel gerundet (round(…, 2px)). Sonst rundet der Browser
+     jede Seite einzeln und der Ring wirkt verrutscht, und bei ungerader
+     Differenz der Durchmesser läge der Innenkreis auf einem halben Pixel. */
+  --fsw: round(calc(34px * var(--scale)), 2px);
+  position: relative;
+  /* Nicht zusammendrücken, sonst werden die Scheiben oval. */
+  flex: 0 0 auto;
+  width: var(--fsw);
+  height: var(--fsw);
+  border-radius: 50%;
+  border: round(calc(2px * var(--scale)), 1px) solid var(--switch-edge);
+  background: none;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  transition: border-color .12s var(--ease);
+  /* Hof hinter der Scheibe gegen ein Bild darunter: 3 px weich, ohne spread
+     (siehe --halo in theme.css). */
+  box-shadow: var(--halo-ring);
+}
+.footswitch::before {
+  content: "";
+  /* Gerade Zahl, damit der Abstand zum Ring auf beiden Seiten gleich ist. */
+  width: round(calc(var(--fsw) * .81), 2px);
+  height: round(calc(var(--fsw) * .81), 2px);
+  border-radius: 50%;
+  background: linear-gradient(180deg,
+              color-mix(in srgb, var(--switch-top) 92%, #000),
+              color-mix(in srgb, var(--switch-bot) 92%, #000));
+  transition: background .12s var(--ease);
+}
+.footswitch:active { transform: translateY(1px); }
+
+.footswitch[data-on="true"] { border-color: var(--knob-colour, var(--ok)); }
+.footswitch[data-on="true"]::before {
+  background: color-mix(in srgb, var(--knob-colour, var(--ok)) 82%, var(--ink));
+}
+
+/* Die LED ist das Zeichen auf der Scheibe und unsichtbar, solange keins gesetzt
+   ist. Nur der Recorder setzt data-sign. */
+.footswitch-led {
+  position: absolute;
+  width: round(calc(var(--fsw) * .30), 2px);
+  height: round(calc(var(--fsw) * .30), 2px);
+  background: transparent;
+  transition: background .12s var(--ease);
+}
+
+/* Die kleinen Looper-Schalter tragen ihre Spurfarbe im Ring, auch
+   ausgeschaltet. Die gefüllte Scheibe heißt an. */
+.footswitch-small {
+  --fsw: round(calc(25px * var(--scale)), 2px);
+  width: var(--fsw);
+  height: var(--fsw);
+  border-color: color-mix(in srgb, var(--knob-colour, var(--switch-edge)) 70%, var(--shell-bottom));
+}
+.footswitch-small[data-on="true"] { border-color: var(--knob-colour, var(--ok)); }
+
+/* Das Zeichen zeigt, was der nächste Tritt tut: leeres Band roter Punkt,
+   vorhandener Take weißes Dreieck. Es sitzt direkt an der LED. */
+/* Auf dunkler Scheibe in Blockfarbe, auf gefüllter Scheibe hell. */
+.footswitch-led[data-sign="record"] {
+  background: var(--knob-colour, var(--error));
+  border-radius: 50%;
+}
+.footswitch-led[data-sign="play"] {
+  background: var(--knob-colour, var(--ink));
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  transform: translateX(8%) scale(.95, 1.05);
+}
+.footswitch[data-on="true"] .footswitch-led[data-sign] { background: var(--ink); }
+
+/* Taktleuchten */
+/* Eine Reihe aus sechzehn runden Leuchten statt zwei zu acht, damit der Takt
+   ohne Umbruch durchläuft. Jede Leuchte bekommt dieselbe Spalte. */
+.beat-lights {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  justify-items: center;
+  align-items: center;
+  padding: calc(3px * var(--scale)) 0;
+}
+
+/* Eingelassen: der Sockel ist eine Mulde, die Leuchte sitzt darin. */
+.beat-light {
+  position: relative;
+  width: calc(7px * var(--scale));
+  height: calc(7px * var(--scale));
+  border-radius: 50%;
+  background: var(--well-bg);
+  box-shadow: var(--well-shadow);
+}
+
+.beat-light-glow {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 63%; height: 63%;
+  margin: -31.5% 0 0 -31.5%;
+  border-radius: 50%;
+  background: var(--beat-colour, var(--ink-dim));
+  opacity: 0;
+  /* Aufspringen und Ausklingen in einem Übergang. Die Skalierung setzt
+     setFlashes. */
+  transition: opacity .06s linear, transform .09s var(--ease);
+}
+.beat-light[data-one="true"] { --beat-colour: #f2efe9; }
+.beat-light[data-quarter="true"] { --beat-colour: #d2d2d2; }
+/* Die aktive Leuchte bekommt einen Schein, sonst geht sie auf dem Blech unter. */
+.beat-light-glow { box-shadow: 0 0 calc(3px * var(--scale))
+                               color-mix(in srgb, var(--beat-colour, var(--ink-dim)) 90%, transparent); }
+/* Der Vorgänger ist verwischt statt gedimmt, damit er als Bewegung wirkt. */
+.beat-light-glow[data-ghost="true"] {
+  filter: blur(calc(1.4px * var(--scale)));
+  box-shadow: none;
+}
